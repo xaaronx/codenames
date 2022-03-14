@@ -20,7 +20,7 @@ class CodeNamesSolverAlgorithm:
         return indices, similarities
 
     @staticmethod
-    def get_word_combinations(words_to_hit: list):
+    def get_word_combinations(words_to_hit: list) -> list:
         return list(itertools.chain(*map(lambda x: itertools.combinations(words_to_hit, x),
                                          range(1, len(words_to_hit) + 1))))
 
@@ -32,7 +32,7 @@ class NearestNeighborMean(CodeNamesSolverAlgorithm):
         self.words_to_hit = words_to_hit
         self.n = n
 
-    def compute(self, words: list):
+    def compute(self, words: list) -> list:
         # Fetch embeddings for words of relevance
         embeddings_of_words_to_hit = np.array([self.embeddings.get(word, np.array) for word in list(words)])
         # Get mean of fetched embeddings

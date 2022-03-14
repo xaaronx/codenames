@@ -10,7 +10,7 @@ class Solver:
         self.embeddings = embeddings
         self.n = n
 
-    def solve(self, algorithm):
+    def solve(self, algorithm) -> list:
         return algorithm(words_to_hit=self.words_to_hit, embeddings=self.embeddings, n=self.n).solve()
 
 
@@ -21,7 +21,7 @@ class SolverBuilderGlove:
         self.embedding_path = embedding_path
         self.logger = logging.getLogger(__name__)
 
-    def persist_embeddings(self):
+    def persist_embeddings(self) -> dict:
         embeddings = {}
         with open(self.embedding_path, "r") as file:
             for line in file:
@@ -32,7 +32,7 @@ class SolverBuilderGlove:
         self.logger.info("Glove embeddings loaded.")
         return embeddings
 
-    def build(self):
+    def build(self) -> Solver:
         embeddings = self.persist_embeddings()
         return Solver(words_to_hit=self.words_to_hit,
                       words_to_avoid=self.words_to_avoid,

@@ -13,14 +13,14 @@ class Scorer:
         self.n = n
 
     @staticmethod
-    def score_single(guess: Guess):
+    def score_single(guess: Guess) -> float:
         return guess.similarity_score * np.log(guess.num_words_linked)
 
-    def top_n(self, metric):
+    def top_n(self, metric: str) -> np.array:
         scores = np.array([guess.__getattribute__(metric) for guess in self.guesses])
         return get_top_n_sorted(scores, self.n)
 
-    def top_n_words(self, metric):
+    def top_n_words(self, metric: str) -> list:
         ixs = self.top_n(metric)
         relevant_guesses = list(itemgetter(*ixs)(self.guesses))
         return [guess.__getattribute__('clue') for guess in relevant_guesses]
