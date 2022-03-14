@@ -1,3 +1,5 @@
+import logging
+
 import numpy as np
 
 
@@ -17,6 +19,7 @@ class SolverBuilderGlove:
         self.words_to_hit = words_to_hit
         self.words_to_avoid = words_to_avoid
         self.embedding_path = embedding_path
+        self.logger = logging.getLogger(__name__)
 
     def persist_embeddings(self):
         embeddings = {}
@@ -26,6 +29,7 @@ class SolverBuilderGlove:
                 word = split_line[0]
                 embedding = np.array(split_line[1:], dtype=np.float64)
                 embeddings[word] = embedding
+        self.logger.info("Glove embeddings loaded.")
         return embeddings
 
     def build(self):

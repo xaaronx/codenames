@@ -3,7 +3,7 @@ from operator import itemgetter
 
 import numpy as np
 
-from solver.scorer import Guess
+from solver.scorer import Guess, Scorer
 from solver.utils import remove_keys_from_dict, get_top_n_sorted
 
 
@@ -55,7 +55,8 @@ class NearestNeighborMean(CodeNamesSolverAlgorithm):
         for words in words_combinations:
             for solution in self.compute(words):
                 clue, similarity = solution
-                guesses.append(Guess(clue, similarity, words))
+                guess = Guess(clue, similarity, words)
+                guesses.append(guess)
 
-        solutions = np.array(guesses)
-        print(solutions[solutions[:, 1].argsort()][:20])
+        print(Scorer(guesses, self.n).top_n_words("similarity_score"))
+
