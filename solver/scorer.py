@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from dataclasses import dataclass, field
 from operator import itemgetter
 
 import numpy as np
@@ -8,27 +9,50 @@ from solver.utils import get_top_n_sorted
 
 
 class Scorer:
-    def __init__(self, guesses: list, n: int):
+    def __init__(self, guesses: list, n: int, metric: str = "similarity_score"):
         self.guesses = guesses
         self.n = n
+        self.metric = metric
 
-    @staticmethod
-    def score_single(guess: Guess) -> float:
-        return guess.similarity_score * np.log(guess.num_words_linked)
+    def score_single(self, guess: Guess) -> Guess:
+        """Takes metric of choice (from class) and multiplies by log of number of words linked.
 
-    def top_n(self, metric: str) -> np.array:
-        scores = np.array([guess.__getattribute__(metric) for guess in self.guesses])
-        return get_top_n_sorted(scores, self.n)
+        :param guess: Single Guess object
+        :return: Updated guess object
+        """
+        guess.score = guess.__getattribute__(self.metric) * np.cbrt(guess.num_words_linked)
+        return guess
 
-    def top_n_words(self, metric: str) -> list:
-        ixs = self.top_n(metric)
-        relevant_guesses = list(itemgetter(*ixs)(self.guesses))
-        return [guess.__getattribute__('clue') for guess in relevant_guesses]
+    def _top_n(self) -> np.array:
+        """Scores guesses, gets scores from guess object and then find indices of top n
+
+        :return: Indices of top scores
+        """
+        scored_guesses = list(map(self.score_single, self.guesses))
+        scores = np.array(list(map(lambda guess: guess.score, scored_guesses)))
+        top_ixs = get_top_n_sorted(scores, self.n)
+        return top_ixs
+
+    def top_n_guesses(self) -> list:
+        """Gets top n guess objects using _top_n method
+
+        :return: list of Guess objects that score highest.
+        """
+        ixs = self._top_n()
+        top_guesses = list(itemgetter(*ixs)(self.guesses))
+        return top_guesses
 
 
+@dataclass
 class Guess:
-    def __init__(self, clue: str, similarity_score: float, linked_words: list):
-        self.clue = clue
-        self.similarity_score = similarity_score
-        self.linked_words = linked_words
-        self.num_words_linked = len(self.linked_words)
+    clue: str
+    similarity_score: float
+    linked_words: list
+    num_words_linked: int = field(init=False)
+
+    def __post_init__(self):
+        self.num_words_linked = self.get_num_words_linked()
+
+    def get_num_words_linked(self) -> int:
+        return len(self.linked_words)
+

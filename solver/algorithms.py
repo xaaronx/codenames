@@ -58,5 +58,4 @@ class NearestNeighborMean(CodeNamesSolverAlgorithm):
                 guess = Guess(clue, similarity, words)
                 guesses.append(guess)
 
-        print(Scorer(guesses, self.n).top_n_words("similarity_score"))
-
+        return Scorer(guesses, self.n).top_n_guesses()

@@ -1,17 +1,27 @@
+import logging
 import os
 
 from solver.algorithms import NearestNeighborMean
-from solver.solver import SolverBuilderGlove
+from solver.solver import AdversarialPostSpecSolver
 
 if __name__ == "__main__":
     words_to_avoid = []
-    words_to_hit = ["cheese", "milk", "butter", "sugar"]
+    # words_to_hit = ["milk", "cheese", "yogurt", "butter"]
+    words_to_hit = ["france", "germany", "america", "russia"]
 
-    embedding_path = os.path.join("..", "data", "word_embeddings", "glove.6B.50d.txt")
+    logging.getLogger().setLevel('INFO')
 
-    solver = SolverBuilderGlove(words_to_hit=words_to_hit,
-                                words_to_avoid=words_to_avoid,
-                                embedding_path=embedding_path
-                                ).build()
+    # embedding_path = os.path.join("..", "data", "word_embeddings", "glove", "glove.6B.300d.txt")
+    embedding_path = os.path.join("..", "data", "word_embeddings", "post-specialized embeddings", "postspec",
+                                  "glove_postspec.txt")
+    num_guesses = 20
 
-    solver.solve(NearestNeighborMean)
+    solver = AdversarialPostSpecSolver(words_to_hit=words_to_hit,
+                                       words_to_avoid=words_to_avoid,
+                                       embedding_path=embedding_path,
+                                       n=num_guesses
+                                       ).build()
+
+    solutions = solver.solve(NearestNeighborMean)
+    for i in solutions:
+        print(i.clue, i.linked_words, i.score)
