@@ -5,10 +5,11 @@ from tqdm import tqdm
 
 
 class Solver:
-    def __init__(self, words_to_hit: list, words_to_avoid: list, embeddings: dict, n: int):
+    def __init__(self, words_to_hit: list, words_to_avoid: list, embeddings: dict, n: int, threshold: float):
         self.words_to_hit = words_to_hit
         self.words_to_avoid = words_to_avoid
         self.embeddings = embeddings
+        self.threshold = threshold
         self.n = n
 
     def solve(self, algorithm) -> list:
@@ -18,15 +19,20 @@ class Solver:
         :param algorithm: A solver.algorithm object that contains and solve method.
         :return: List of self.n Guess objects.
         """
-        return algorithm(words_to_hit=self.words_to_hit, embeddings=self.embeddings, n=self.n).solve()
+        return algorithm(words_to_hit=self.words_to_hit,
+                         embeddings=self.embeddings,
+                         n=self.n,
+                         threshold=self.threshold
+                         ).solve()
 
 
 class SolverBuilder:
-    def __init__(self, words_to_hit: list, words_to_avoid: list, embedding_path: str, n: int = 5):
+    def __init__(self, words_to_hit: list, words_to_avoid: list, embedding_path: str, n: int = 5, threshold: float = 0.5):
         self.words_to_hit = words_to_hit
         self.words_to_avoid = words_to_avoid
         self.embedding_path = embedding_path
         self.n = n
+        self.threshold = threshold
         self.logger = logging.getLogger(__name__)
 
     def _persist_embeddings(self):
@@ -37,15 +43,17 @@ class SolverBuilder:
         return Solver(words_to_hit=self.words_to_hit,
                       words_to_avoid=self.words_to_avoid,
                       embeddings=embeddings,
+                      threshold=self.threshold,
                       n=self.n)
 
 
 class GloveSolver(SolverBuilder):
-    def __init__(self, words_to_hit: list, words_to_avoid: list, embedding_path: str, n: int = 5):
-        super().__init__(words_to_hit, words_to_avoid, embedding_path, n)
+    def __init__(self, words_to_hit: list, words_to_avoid: list, embedding_path: str, n: int, threshold: float):
+        super().__init__(words_to_hit, words_to_avoid, embedding_path, n, threshold)
         self.logger = logging.getLogger(__name__)
 
     def _persist_embeddings(self) -> dict:
+        self.logger.info("Loading GloVe embeddings...")
         embeddings = {}
         with open(self.embedding_path, "r") as file:
             for line in tqdm(file):
@@ -53,17 +61,18 @@ class GloveSolver(SolverBuilder):
                 word = split_line[0]
                 embedding = np.array(split_line[1:], dtype=np.float64)
                 embeddings[word] = embedding
-        self.logger.info("Glove embeddings loaded.")
+        self.logger.info("GloVe embeddings loaded.")
         return embeddings
 
 
 class AdversarialPostSpecSolver(SolverBuilder):
-    def __init__(self, words_to_hit: list, words_to_avoid: list, embedding_path: str, n: int = 5):
+    def __init__(self, words_to_hit: list, words_to_avoid: list, embedding_path: str, n: int, threshold: float):
         # See https://github.com/cambridgeltl/adversarial-postspec
-        super().__init__(words_to_hit, words_to_avoid, embedding_path, n)
+        super().__init__(words_to_hit, words_to_avoid, embedding_path, n, threshold)
         self.logger = logging.getLogger(__name__)
 
     def _persist_embeddings(self) -> dict:
+        self.logger.info("Loading PostSpec embeddings...")
         embeddings = {}
         with open(self.embedding_path, "r") as file:
             for line in tqdm(file):
@@ -73,5 +82,5 @@ class AdversarialPostSpecSolver(SolverBuilder):
                     word = word[1]
                     embedding = np.array(split_line[1:], dtype=np.float64)
                     embeddings[word] = embedding
-        self.logger.info("Glove embeddings loaded.")
+        self.logger.info("PostSpec embeddings loaded.")
         return embeddings

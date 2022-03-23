@@ -25,18 +25,19 @@ class CodeNamesSolverAlgorithm:
                                          range(1, len(words_to_hit) + 1))))
 
 
-class NearestNeighborMean(CodeNamesSolverAlgorithm):
-    def __init__(self, embeddings: dict, words_to_hit: list, n: int):
+class NearestNeighborSum(CodeNamesSolverAlgorithm):
+    def __init__(self, embeddings: dict, words_to_hit: list, n: int, threshold: float):
         super().__init__()
         self.embeddings = embeddings
         self.words_to_hit = words_to_hit
         self.n = n
+        self.threshold = threshold
 
     def compute(self, words: list) -> list:
         # Fetch embeddings for words of relevance
         embeddings_of_words_to_hit = np.array([self.embeddings.get(word, np.array) for word in list(words)])
         # Get mean of fetched embeddings
-        target_vector = np.mean(embeddings_of_words_to_hit, axis=0)
+        target_vector = np.sum(embeddings_of_words_to_hit, axis=0)
         # Remove words_to_hit from potential matches
         potential_match_embeddings = remove_keys_from_dict(self.embeddings, words)
         # Conver to array
@@ -58,4 +59,4 @@ class NearestNeighborMean(CodeNamesSolverAlgorithm):
                 guess = Guess(clue, similarity, words)
                 guesses.append(guess)
 
-        return Scorer(guesses, self.n).top_n_guesses()
+        return Scorer(guesses, self.embeddings, self.n, self.threshold).top_n_guesses()
