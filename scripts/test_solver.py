@@ -13,17 +13,25 @@ def initialise_logger():
     return logger
 
 
-def run_glove_solver(algo, t):
+def run_glove_solver(algo, s):
     glove_embedding_path = os.path.join("..", "data", "word_embeddings", "glove", "glove.6B.300d.txt")
-    glove_solver = GloveSolver(**CONFIG, embedding_path=glove_embedding_path, threshold=t).build()
+    glove_solver = GloveSolver(**CONFIG, embedding_path=glove_embedding_path, strategy=s).build()
     return glove_solver.solve(algo)
 
 
-def run_postspec_solver(algo, t):
+def run_postspec_solver(algo, s):
     p_path = ["..", "data", "word_embeddings", "post-specialized embeddings", "postspec", "glove_postspec.txt"]
     postspec_embedding_path = os.path.join(*p_path)
-    postspec_solver = AdversarialPostSpecSolver(**CONFIG, embedding_path=postspec_embedding_path, threshold=t).build()
+    postspec_solver = AdversarialPostSpecSolver(**CONFIG, embedding_path=postspec_embedding_path, strategy=s).build()
     return postspec_solver.solve(algo)
+
+
+def get_words(words):
+    random.shuffle(words)
+    negative = words[:16]
+    positive = words[17:25]
+    LOGGER.info(f"Words to link: {', '.join(positive)}\nWords to avoid: {', '.join(negative)}")
+    return positive, negative
 
 
 def log_solutions(solutions):
@@ -40,29 +48,16 @@ def log_solutions(solutions):
 
 if __name__ == "__main__":
     LOGGER = initialise_logger()
-    n = 20
+    strategy = 'risky'
+    n = 10
     algorithm = NearestNeighborSum
 
     path_to_word_list = os.path.join("..", "data", "wordlist-eng.txt")
     wordlist = WordListBuilder(path_to_word_list).build().wordlist
 
-    words_to_avoid = []
-    words_to_hit = random.sample(wordlist, 7)
-    LOGGER.info(f"All words: {', '.join(words_to_hit)}")
+    words_to_hit, words_to_avoid = get_words(wordlist)
 
     CONFIG = {"words_to_hit": words_to_hit, "words_to_avoid": words_to_avoid, "n": n}
 
-    glove_embedding_path = os.path.join("..", "data", "word_embeddings", "glove", "glove.6B.300d.txt")
-    glove_solver = GloveSolver(**CONFIG, embedding_path=glove_embedding_path, threshold=0.5).build()
-    log_solutions(glove_solver.solve(algorithm))
-
-    for _ in range(10):
-        t = random.uniform(0, 0.5)
-        LOGGER.info(f"New Threshold: {t}")
-        glove_solver.threshold = t
-        glove_solver.words_to_hit = random.sample(wordlist, 7)
-        LOGGER.info(f"All words: {', '.join(words_to_hit)}")
-        log_solutions(glove_solver.solve(algorithm))
-
-    # log_solutions(run_glove_solver(algorithm, .05))
-    # log_solutions(run_postspec_solver(algorithm, .35))
+    log_solutions(run_glove_solver(algorithm, .3))
+    log_solutions(run_postspec_solver(algorithm, strategy))

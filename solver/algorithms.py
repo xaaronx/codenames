@@ -26,10 +26,11 @@ class CodeNamesSolverAlgorithm:
 
 
 class NearestNeighborSum(CodeNamesSolverAlgorithm):
-    def __init__(self, embeddings: dict, words_to_hit: list, n: int, threshold: float):
+    def __init__(self, embeddings: dict, words_to_hit: list, n: int, threshold: float, words_to_avoid: list = []):
         super().__init__()
         self.embeddings = embeddings
         self.words_to_hit = words_to_hit
+        self.words_to_avoid = words_to_avoid
         self.n = n
         self.threshold = threshold
 
@@ -59,4 +60,9 @@ class NearestNeighborSum(CodeNamesSolverAlgorithm):
                 guess = Guess(clue, similarity, words)
                 guesses.append(guess)
 
-        return Scorer(guesses, self.embeddings, self.n, self.threshold).top_n_guesses()
+        return Scorer(guesses=guesses,
+                      embeddings=self.embeddings,
+                      words_to_avoid=self.words_to_avoid,
+                      n=self.n,
+                      threshold=self.threshold
+                      ).top_n_guesses()
