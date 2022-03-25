@@ -1,9 +1,11 @@
 import itertools
+import logging
 from operator import itemgetter
 
 import numpy as np
+from nltk.corpus import WordNetCorpusReader
 
-from solver.scorer import Guess, Scorer
+from solver.scorer import Guess, EmbeddingScorer
 from solver.utils import remove_keys_from_dict, get_top_n_sorted
 
 
@@ -26,43 +28,67 @@ class CodeNamesSolverAlgorithm:
 
 
 class NearestNeighborSum(CodeNamesSolverAlgorithm):
-    def __init__(self, embeddings: dict, words_to_hit: list, n: int, threshold: float, words_to_avoid: list = []):
+    def __init__(self, model: dict, words_to_hit: list, n: int, threshold: float, words_to_avoid: list = []):
         super().__init__()
-        self.embeddings = embeddings
+        self.model = model
         self.words_to_hit = words_to_hit
         self.words_to_avoid = words_to_avoid
         self.n = n
         self.threshold = threshold
+        self.logger = logging.getLogger(__name__)
 
-    def compute(self, words: list) -> list:
+    def _compute(self, words: list) -> list:
+        """Computes nearest neighbors (best guesses) for a single combination of words. Uses sum of embedding vectors
+        of words to hit and finds the nearest word to this summed vector.
+
+        :param words: Words to connect.
+        :return: List of best guesses for a single combination of words.
+        """
+
         # Fetch embeddings for words of relevance
-        embeddings_of_words_to_hit = np.array([self.embeddings.get(word, np.array) for word in list(words)])
+        embeddings_of_words_to_hit = np.array([self.model.get(word, np.array) for word in list(words)])
         # Get mean of fetched embeddings
         target_vector = np.sum(embeddings_of_words_to_hit, axis=0)
         # Remove words_to_hit from potential matches
-        potential_match_embeddings = remove_keys_from_dict(self.embeddings, words)
-        # Conver to array
+        potential_match_embeddings = remove_keys_from_dict(self.model, words)
+        # Convert to array
         embeddings_as_array = np.array(list(potential_match_embeddings.values()))
         # Find nearest
         indices, similarities = self.nearest_neighbor_search(target_vector, embeddings_as_array.T, self.n)
-        # Index maches against original list
+        # Index matches against original list
         words = itemgetter(*indices)(list(potential_match_embeddings.keys()))
         # Fetch also the numerical similarities
         sims = similarities[indices]
         return list(zip(words, sims))
 
-    def solve(self):
+    def solve(self) -> list:
         guesses = []
         words_combinations = self.get_word_combinations(self.words_to_hit)
         for words in words_combinations:
-            for solution in self.compute(words):
-                clue, similarity = solution
-                guess = Guess(clue, similarity, words)
-                guesses.append(guess)
+            try:
+                for solution in self._compute(words):
+                    clue, similarity = solution
+                    guess = Guess(clue, similarity, words)
+                    guesses.append(guess)
+            except AttributeError as e:
+                self.logger.error(f"AttributeError: {e}, {words}")
+            except TypeError as e:
+                self.logger.error(f"TypeError: {e}, {words}")
 
-        return Scorer(guesses=guesses,
-                      embeddings=self.embeddings,
-                      words_to_avoid=self.words_to_avoid,
-                      n=self.n,
-                      threshold=self.threshold
-                      ).top_n_guesses()
+        return EmbeddingScorer(guesses=guesses,
+                               embeddings=self.model,
+                               words_to_avoid=self.words_to_avoid,
+                               n=self.n,
+                               threshold=self.threshold
+                               ).top_n_guesses()
+
+
+class WordNetDistance(CodeNamesSolverAlgorithm):
+    def __init__(self, model: WordNetCorpusReader, words_to_hit: list, n: int, threshold: float,
+                 words_to_avoid: list = []):
+        super().__init__()
+        self.model = model
+        self.words_to_hit = words_to_hit
+        self.words_to_avoid = words_to_avoid
+        self.n = n
+        self.threshold = threshold

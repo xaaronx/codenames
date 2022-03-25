@@ -12,3 +12,7 @@ def get_top_n_sorted(values: np.array, n: int = 5) -> np.array:
     top_n_items = np.argpartition(values, -n)[-n:]
     indices = top_n_items[np.argsort(-values[top_n_items])]
     return indices
+
+
+def np_cosine(a, b):
+    return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))

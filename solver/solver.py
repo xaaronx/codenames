@@ -1,24 +1,25 @@
 import logging
 
 import numpy as np
+from nltk.corpus import wordnet
 from tqdm import tqdm
 
 from solver.config import Threshold
 
 
 class Solver:
-    def __init__(self, words_to_hit: list, words_to_avoid: list, embeddings: dict, n: int, threshold: float):
+    def __init__(self, words_to_hit: list, words_to_avoid: list, model, n: int, threshold: float):
         """General Codenames Solver Class
 
         :param words_to_hit:
         :param words_to_avoid:
-        :param embeddings:
+        :param model:
         :param n:
-        :param strategy: Either risky, moderate, conservative
+        :param strategy: Either risky, quite_risky, moderate, quite_conservative, conservative
         """
         self.words_to_hit = words_to_hit
         self.words_to_avoid = words_to_avoid
-        self.embeddings = embeddings
+        self.model = model
         self.threshold = threshold
         self.n = n
 
@@ -29,8 +30,8 @@ class Solver:
         :param algorithm: A solver.algorithm object that contains and solve method.
         :return: List of self.n Guess objects.
         """
-        return algorithm(words_to_hit=self.words_to_hit,
-                         embeddings=self.embeddings,
+        return algorithm(model=self.model,
+                         words_to_hit=self.words_to_hit,
                          words_to_avoid=self.words_to_avoid,
                          n=self.n,
                          threshold=self.threshold
@@ -38,32 +39,33 @@ class Solver:
 
 
 class SolverBuilder:
-    def __init__(self, words_to_hit: list, words_to_avoid: list, embedding_path: str, n: int = 5, strategy: str = 'moderate'):
+    def __init__(self, words_to_hit: list, words_to_avoid: list = None, n: int = 5, strategy: str = None):
         self.words_to_hit = words_to_hit
         self.words_to_avoid = words_to_avoid
-        self.embedding_path = embedding_path
         self.n = n
         self.threshold = getattr(Threshold, strategy)
         self.logger = logging.getLogger(__name__)
 
-    def _persist_embeddings(self):
+    def _build_language_model(self):
         raise NotImplementedError
 
     def build(self) -> Solver:
-        embeddings = self._persist_embeddings()
-        return Solver(words_to_hit=self.words_to_hit,
+        model = self._build_language_model()
+        return Solver(model=model,
+                      words_to_hit=self.words_to_hit,
                       words_to_avoid=self.words_to_avoid,
-                      embeddings=embeddings,
                       threshold=self.threshold,
                       n=self.n)
 
 
 class GloveSolver(SolverBuilder):
-    def __init__(self, words_to_hit: list, words_to_avoid: list, embedding_path: str, n: int, strategy: str):
-        super().__init__(words_to_hit, words_to_avoid, embedding_path, n, strategy)
+    def __init__(self, embedding_path: str, words_to_hit: list, words_to_avoid: list = None, n: int = 5,
+                 strategy: str = 'moderate'):
+        super().__init__(words_to_hit, words_to_avoid, n, strategy)
+        self.embedding_path = embedding_path
         self.logger = logging.getLogger(__name__)
 
-    def _persist_embeddings(self) -> dict:
+    def _build_language_model(self) -> dict:
         self.logger.info("Loading GloVe embeddings...")
         embeddings = {}
         with open(self.embedding_path, "r") as file:
@@ -76,13 +78,15 @@ class GloveSolver(SolverBuilder):
         return embeddings
 
 
-class AdversarialPostSpecSolver(SolverBuilder):
-    def __init__(self, words_to_hit: list, words_to_avoid: list, embedding_path: str, n: int, strategy: str):
+class PostSpecSolver(SolverBuilder):
+    def __init__(self, embedding_path: str, words_to_hit: list, words_to_avoid: list = None, n: int = 5,
+                 strategy: str = 'moderate'):
         # See https://github.com/cambridgeltl/adversarial-postspec
-        super().__init__(words_to_hit, words_to_avoid, embedding_path, n, strategy)
+        super().__init__(words_to_hit, words_to_avoid, n, strategy)
+        self.embedding_path = embedding_path
         self.logger = logging.getLogger(__name__)
 
-    def _persist_embeddings(self) -> dict:
+    def _build_language_model(self) -> dict:
         self.logger.info("Loading PostSpec embeddings...")
         embeddings = {}
         with open(self.embedding_path, "r") as file:
@@ -94,4 +98,25 @@ class AdversarialPostSpecSolver(SolverBuilder):
                     embedding = np.array(split_line[1:], dtype=np.float64)
                     embeddings[word] = embedding
         self.logger.info("PostSpec embeddings loaded.")
+        return embeddings
+
+
+class WordNetSolver(SolverBuilder):
+    def __init__(self, embedding_path: str, words_to_hit: list, words_to_avoid: list = None, n: int = 5,
+                 strategy: str = 'moderate'):
+        # See https://github.com/asoroa/ukb
+        super().__init__(words_to_hit, words_to_avoid, n, strategy)
+        self.embedding_path = embedding_path
+        self.logger = logging.getLogger(__name__)
+
+    def _build_language_model(self) -> dict:
+        self.logger.info("Loading WordNet embeddings...")
+        embeddings = {}
+        with open(self.embedding_path, "r") as file:
+            for line in tqdm(file):
+                split_line = line.split()
+                word = split_line[0]
+                embedding = np.array(split_line[1:], dtype=np.float64)
+                embeddings[word] = embedding
+        self.logger.info("WordNet embeddings loaded.")
         return embeddings

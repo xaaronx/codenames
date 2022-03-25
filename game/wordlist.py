@@ -12,9 +12,17 @@ class WordListBuilder:
         self.path = path
         self.lower = lower
 
+    def get_full_word_list(self):
+        all_words = self._persist_words()
+        return WordList(wordlist=all_words)
+
     def build(self):
-        all_words = open(self.path).read().split()
-        if self.lower:
-            all_words = [word.lower() for word in all_words]
+        all_words = self._persist_words()
         wordlist = random.sample(all_words, self.n_words)
         return WordList(wordlist=wordlist)
+
+    def _persist_words(self):
+        all_words = open(self.path).read().split()
+        if self.lower:
+            return [word.lower() for word in all_words]
+        return all_words

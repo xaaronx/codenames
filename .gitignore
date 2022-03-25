@@ -1,5 +1,6 @@
 data/*
 research/*
+solver/notebooks
 
 .DS_Store
 .idea
