@@ -3,8 +3,8 @@ import os
 import random
 
 from game.wordlist import WordListBuilder
-from solver.algorithms import NearestNeighborSum
-from solver.solver import PostSpecSolver, GloveSolver, WordNetSolver
+from solver.algorithms import NearestNeighborSum, BestAverageAngle
+from solver.solver import PostSpecSolver, GloveSolver, WordNetSolver, StaticBertSolver
 
 
 def initialise_logger():
@@ -33,10 +33,17 @@ def run_wordnet_solver(algo, s):
     return wordnet_solver.solve(algo)
 
 
+def run_bert_solver(algo, s):
+    b_path = ["..", "data", "word_embeddings", "bert", "embedding.txt"]
+    bert_embedding_path = os.path.join(*b_path)
+    bert_solver = StaticBertSolver(**CONFIG, embedding_path=bert_embedding_path, strategy=s).build()
+    return bert_solver.solve(algo)
+
+
 def get_words(words):
     random.shuffle(words)
     negative = words[:15]
-    positive = words[16:24]
+    positive = words[19:24]
     return positive, negative
 
 
@@ -56,6 +63,8 @@ if __name__ == "__main__":
     LOGGER = initialise_logger()
     strategy = 'moderate'
     n = 10
+    algorithms = [NearestNeighborSum, BestAverageAngle]
+
     algorithm = NearestNeighborSum
 
     path_to_word_list = os.path.join("..", "data", "wordlist-eng.txt")
@@ -73,3 +82,4 @@ if __name__ == "__main__":
     # log_solutions(run_glove_solver(algorithm, strategy))
     # log_solutions(run_postspec_solver(algorithm, strategy))
     log_solutions(run_wordnet_solver(algorithm, strategy))
+    # log_solutions(run_bert_solver(algorithm, strategy))

@@ -4,7 +4,7 @@ import numpy as np
 from nltk.corpus import wordnet
 from tqdm import tqdm
 
-from solver.config import Threshold
+from solver.config import Threshold, GloveThreshold, PostSpecThreshold, WordNetThreshold, StaticBertThreshold
 
 
 class Solver:
@@ -39,15 +39,26 @@ class Solver:
 
 
 class SolverBuilder:
-    def __init__(self, words_to_hit: list, words_to_avoid: list = None, n: int = 5, strategy: str = None):
+    def __init__(self, words_to_hit: list, words_to_avoid: list = None, n: int = 5, threshold: float = 0.3):
         self.words_to_hit = words_to_hit
         self.words_to_avoid = words_to_avoid
         self.n = n
-        self.threshold = getattr(Threshold, strategy)
+        self.threshold = threshold
         self.logger = logging.getLogger(__name__)
 
     def _build_language_model(self):
         raise NotImplementedError
+
+    @staticmethod
+    def _get_embeddings_word_vals(path: str):
+        embeddings = {}
+        with open(path, "r") as file:
+            for line in tqdm(file):
+                split_line = line.split()
+                word = split_line[0]
+                embedding = np.array(split_line[1:], dtype=np.float64)
+                embeddings[word] = embedding
+        return embeddings
 
     def build(self) -> Solver:
         model = self._build_language_model()
@@ -61,19 +72,16 @@ class SolverBuilder:
 class GloveSolver(SolverBuilder):
     def __init__(self, embedding_path: str, words_to_hit: list, words_to_avoid: list = None, n: int = 5,
                  strategy: str = 'moderate'):
-        super().__init__(words_to_hit, words_to_avoid, n, strategy)
+        super().__init__(words_to_hit, words_to_avoid, n)
+        self.threshold = getattr(GloveThreshold, strategy)
+        self.strategy = strategy
         self.embedding_path = embedding_path
         self.logger = logging.getLogger(__name__)
+        self.logger.info(f"Using {self.strategy} strategy with threshold: {self.threshold}")
 
     def _build_language_model(self) -> dict:
         self.logger.info("Loading GloVe embeddings...")
-        embeddings = {}
-        with open(self.embedding_path, "r") as file:
-            for line in tqdm(file):
-                split_line = line.split()
-                word = split_line[0]
-                embedding = np.array(split_line[1:], dtype=np.float64)
-                embeddings[word] = embedding
+        embeddings = self._get_embeddings_word_vals(self.embedding_path)
         self.logger.info("GloVe embeddings loaded.")
         return embeddings
 
@@ -82,9 +90,12 @@ class PostSpecSolver(SolverBuilder):
     def __init__(self, embedding_path: str, words_to_hit: list, words_to_avoid: list = None, n: int = 5,
                  strategy: str = 'moderate'):
         # See https://github.com/cambridgeltl/adversarial-postspec
-        super().__init__(words_to_hit, words_to_avoid, n, strategy)
+        super().__init__(words_to_hit, words_to_avoid, n)
+        self.threshold = getattr(PostSpecThreshold, strategy)
+        self.strategy = strategy
         self.embedding_path = embedding_path
         self.logger = logging.getLogger(__name__)
+        self.logger.info(f"Using {self.strategy} strategy with threshold: {self.threshold}")
 
     def _build_language_model(self) -> dict:
         self.logger.info("Loading PostSpec embeddings...")
@@ -105,18 +116,33 @@ class WordNetSolver(SolverBuilder):
     def __init__(self, embedding_path: str, words_to_hit: list, words_to_avoid: list = None, n: int = 5,
                  strategy: str = 'moderate'):
         # See https://github.com/asoroa/ukb
-        super().__init__(words_to_hit, words_to_avoid, n, strategy)
+        super().__init__(words_to_hit, words_to_avoid, n)
+        self.threshold = getattr(WordNetThreshold, strategy)
+        self.strategy = strategy
         self.embedding_path = embedding_path
         self.logger = logging.getLogger(__name__)
+        self.logger.info(f"Using {self.strategy} strategy with threshold: {self.threshold}")
 
     def _build_language_model(self) -> dict:
         self.logger.info("Loading WordNet embeddings...")
-        embeddings = {}
-        with open(self.embedding_path, "r") as file:
-            for line in tqdm(file):
-                split_line = line.split()
-                word = split_line[0]
-                embedding = np.array(split_line[1:], dtype=np.float64)
-                embeddings[word] = embedding
+        embeddings = self._get_embeddings_word_vals(self.embedding_path)
         self.logger.info("WordNet embeddings loaded.")
+        return embeddings
+
+
+class StaticBertSolver(SolverBuilder):
+    def __init__(self, embedding_path: str, words_to_hit: list, words_to_avoid: list = None, n: int = 5,
+                 strategy: str = 'moderate'):
+        # See https://github.com/asoroa/ukb
+        super().__init__(words_to_hit, words_to_avoid, n)
+        self.threshold = getattr(StaticBertThreshold, strategy)
+        self.strategy = strategy
+        self.embedding_path = embedding_path
+        self.logger = logging.getLogger(__name__)
+        self.logger.info(f"Using {self.strategy} strategy with threshold: {self.threshold}")
+
+    def _build_language_model(self) -> dict:
+        self.logger.info("Loading Static BERT embeddings...")
+        embeddings = self._get_embeddings_word_vals(self.embedding_path)
+        self.logger.info("Static BERT embeddings loaded.")
         return embeddings
