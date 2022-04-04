@@ -42,8 +42,8 @@ def run_bert_solver(algo, s):
 
 def get_words(words):
     random.shuffle(words)
-    negative = words[:15]
-    positive = words[19:24]
+    negative = words[20:]
+    positive = words[:7]
     return positive, negative
 
 
@@ -65,13 +65,10 @@ if __name__ == "__main__":
     n = 10
     algorithms = [NearestNeighborSum, BestAverageAngle]
 
-    algorithm = NearestNeighborSum
-
     path_to_word_list = os.path.join("..", "data", "wordlist-eng.txt")
     wordlist = WordListBuilder(path_to_word_list).build().wordlist
     words_to_hit, words_to_avoid = get_words(wordlist)
 
-    # CONFIG = {"words_to_hit": words_to_hit, "words_to_avoid": words_to_avoid, "n": n}
     CONFIG = {"words_to_hit": words_to_hit, "n": n}
 
     if CONFIG.get("words_to_avoid"):
@@ -79,7 +76,7 @@ if __name__ == "__main__":
     else:
         LOGGER.info(f"Words to link: {', '.join(words_to_hit)}\n")
 
-    # log_solutions(run_glove_solver(algorithm, strategy))
-    # log_solutions(run_postspec_solver(algorithm, strategy))
-    log_solutions(run_wordnet_solver(algorithm, strategy))
-    # log_solutions(run_bert_solver(algorithm, strategy))
+    funcs = [run_glove_solver, run_postspec_solver, run_wordnet_solver, run_bert_solver]
+    for func in funcs:
+        for algorithm in algorithms:
+            log_solutions(func(algorithm, strategy))

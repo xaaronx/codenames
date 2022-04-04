@@ -1,10 +1,9 @@
 import logging
 
 import numpy as np
-from nltk.corpus import wordnet
 from tqdm import tqdm
 
-from solver.config import Threshold, GloveThreshold, PostSpecThreshold, WordNetThreshold, StaticBertThreshold
+from solver.config import GloveThreshold, PostSpecThreshold, WordNetThreshold, StaticBertThreshold
 
 
 class Solver:
