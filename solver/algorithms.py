@@ -4,6 +4,7 @@ from operator import itemgetter
 
 import numpy as np
 
+from solver.distance import Cosine, DotProduct
 from solver.scorer import Guess, EmbeddingScorer
 from solver.utils import remove_keys_from_dict, get_top_n_sorted
 
@@ -39,13 +40,6 @@ class CodeNamesSolverAlgorithm:
         sumxy = vector.dot(array.T)
         return (sumxy / np.sqrt(sumxx)) / np.sqrt(sumyy)
 
-    def _nearest_neighbor_search(self, base_vector, target_array, n):
-        # Find distance
-        similarities = np.squeeze(self._cosine_vectorized(base_vector, target_array))
-        # Get top n matches
-        indices = get_top_n_sorted(similarities, n)
-        return indices, similarities
-
     @staticmethod
     def _get_word_combinations(words_to_hit: list) -> list:
         return list(itertools.chain(*map(lambda x: itertools.combinations(words_to_hit, x),
@@ -63,10 +57,37 @@ class CodeNamesSolverAlgorithm:
                                ).top_n_guesses()
 
 
-class NearestNeighborSum(CodeNamesSolverAlgorithm):
+class MeanIndividualDistance(CodeNamesSolverAlgorithm):
     def __init__(self, model: dict, words_to_hit: list, n: int, threshold: float, words_to_avoid: list = [],
-                 search_space_multiplier: int = 10):
+                 search_space_multiplier: int = 10, distance_metric=Cosine):
         super().__init__(model, words_to_hit, n, threshold, words_to_avoid, search_space_multiplier)
+        self.distance_metric = distance_metric
+
+    def _compute(self, words: list) -> list:
+        # Fetch embeddings for words of relevance
+        embeddings_of_words_to_hit = np.array([self.model.get(word, np.array) for word in list(words)])
+        # Remove words_to_hit from potential matches
+        potential_match_embeddings = remove_keys_from_dict(self.model, words)
+        # And convert to array
+        potential_match_embeddings_array = np.vstack(list(potential_match_embeddings.values()))
+        # Calculate cosine similarities between each candidate and each word to hit
+        sims = self.distance_metric(potential_match_embeddings_array, embeddings_of_words_to_hit).distance()
+        # Average to get mean similarity of each candidate to all words to hit
+        mean_sims = sims.T.mean(axis=0)
+        # Get top n
+        indices = get_top_n_sorted(mean_sims, self.n * self.search_space_multiplier)
+        # Index matches against original list
+        matched_words = itemgetter(*indices)(list(potential_match_embeddings.keys()))
+        # Fetch also the numerical similarities
+        sims = mean_sims[indices]
+        return list(zip(matched_words, sims))
+
+
+class SummedNearestNeighbour(CodeNamesSolverAlgorithm):
+    def __init__(self, model: dict, words_to_hit: list, n: int, threshold: float, words_to_avoid: list = [],
+                 search_space_multiplier: int = 10, distance_metric=DotProduct):
+        super().__init__(model, words_to_hit, n, threshold, words_to_avoid, search_space_multiplier)
+        self.distance_metric = distance_metric
 
     def _compute(self, words: list) -> list:
         """Computes nearest neighbors (best guesses) for a single combination of words. Uses sum of embedding vectors
@@ -85,34 +106,11 @@ class NearestNeighborSum(CodeNamesSolverAlgorithm):
         # Convert to array
         embeddings_as_array = np.array(list(potential_match_embeddings.values()))
         # Find nearest
-        indices, similarities = self._nearest_neighbor_search(target_vector, embeddings_as_array, self.n * self.search_space_multiplier)
+        similarities = np.squeeze(self.distance_metric(target_vector, embeddings_as_array).distance())
+        # Get top n matches
+        indices = get_top_n_sorted(similarities, self.n * self.search_space_multiplier)
         # Index matches against original list
         matched_words = itemgetter(*indices)(list(potential_match_embeddings.keys()))
         # Fetch also the numerical similarities
         sims = similarities[indices]
-        return list(zip(matched_words, sims))
-
-
-class BestAverageAngle(CodeNamesSolverAlgorithm):
-    def __init__(self, model: dict, words_to_hit: list, n: int, threshold: float, words_to_avoid: list = [],
-                 search_space_multiplier: int = 10):
-        super().__init__(model, words_to_hit, n, threshold, words_to_avoid, search_space_multiplier)
-
-    def _compute(self, words: list) -> list:
-        # Fetch embeddings for words of relevance
-        embeddings_of_words_to_hit = np.array([self.model.get(word, np.array) for word in list(words)])
-        # Remove words_to_hit from potential matches
-        potential_match_embeddings = remove_keys_from_dict(self.model, words)
-        # And convert to array
-        potential_match_embeddings_array = np.vstack(list(potential_match_embeddings.values()))
-        # Calculate cosine similarities between each candidate and each word to hit
-        sims = self._cosine_vectorized(potential_match_embeddings_array, embeddings_of_words_to_hit)
-        # Average to get mean similarity of each candidate to all words to hit
-        mean_sims = sims.T.mean(axis=0)
-        # Get top n
-        indices = get_top_n_sorted(mean_sims, self.n * self.search_space_multiplier)
-        # Index matches against original list
-        matched_words = itemgetter(*indices)(list(potential_match_embeddings.keys()))
-        # Fetch also the numerical similarities
-        sims = mean_sims[indices]
         return list(zip(matched_words, sims))

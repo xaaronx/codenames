@@ -3,7 +3,8 @@ import os
 import random
 
 from game.wordlist import WordListBuilder
-from solver.algorithms import NearestNeighborSum, BestAverageAngle
+from solver.algorithms import SummedNearestNeighbour, MeanIndividualDistance
+from solver.distance import DotProduct
 from solver.solver import PostSpecSolver, GloveSolver, WordNetSolver, StaticBertSolver
 
 
@@ -62,21 +63,24 @@ def log_solutions(solutions):
 if __name__ == "__main__":
     LOGGER = initialise_logger()
     strategy = 'moderate'
+    distance_metric = DotProduct
     n = 10
-    algorithms = [NearestNeighborSum, BestAverageAngle]
+    algorithms = [MeanIndividualDistance, SummedNearestNeighbour]
 
     path_to_word_list = os.path.join("..", "data", "wordlist-eng.txt")
     wordlist = WordListBuilder(path_to_word_list).build().wordlist
     words_to_hit, words_to_avoid = get_words(wordlist)
 
-    CONFIG = {"words_to_hit": words_to_hit, "n": n}
+    CONFIG = {"words_to_hit": words_to_hit, "n": n, "distance_metric": distance_metric}
 
     if CONFIG.get("words_to_avoid"):
         LOGGER.info(f"Words to link: {', '.join(words_to_hit)}\nWords to avoid: {', '.join(words_to_avoid)}")
     else:
         LOGGER.info(f"Words to link: {', '.join(words_to_hit)}\n")
 
-    funcs = [run_glove_solver, run_postspec_solver, run_wordnet_solver, run_bert_solver]
-    for func in funcs:
-        for algorithm in algorithms:
-            log_solutions(func(algorithm, strategy))
+    # funcs = [run_glove_solver, run_postspec_solver, run_wordnet_solver, run_bert_solver]
+    # for func in funcs:
+    #     for algorithm in algorithms:
+    #         log_solutions(func(algorithm, strategy))
+
+    log_solutions(run_wordnet_solver(MeanIndividualDistance, strategy))

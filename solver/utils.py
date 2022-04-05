@@ -1,4 +1,5 @@
 import numpy as np
+from tqdm import tqdm
 
 
 def remove_keys_from_dict(dictionary: dict, keys_to_remove: list) -> dict:
@@ -16,3 +17,14 @@ def get_top_n_sorted(values: np.array, n: int = 5) -> np.array:
 
 def np_cosine(a, b):
     return np.dot(a, b) / (np.linalg.norm(a) * np.linalg.norm(b))
+
+
+def get_embeddings_glove_style(path: str):
+    embeddings = {}
+    with open(path, "r") as file:
+        for line in tqdm(file):
+            split_line = line.split()
+            word = split_line[0]
+            embedding = np.array(split_line[1:], dtype=np.float64)
+            embeddings[word] = embedding
+    return embeddings

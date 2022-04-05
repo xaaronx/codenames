@@ -1,6 +1,6 @@
 import os
 
-from solver.algorithms import NearestNeighborSum
+from solver.algorithms import SummedNearestNeighbour
 from solver.solver import WordNetSolver
 
 if __name__ == "__main__":
@@ -12,4 +12,4 @@ if __name__ == "__main__":
     wordnet_embedding_path = os.path.join(*w_path)
     wordnet_solver = WordNetSolver(**CONFIG, embedding_path=wordnet_embedding_path).build()
     model = wordnet_solver.model
-    print(NearestNeighborSum(model=model, words_to_hit=words_to_hit, n=n, threshold=0.5)._compute(words_to_hit))
+    print(SummedNearestNeighbour(model=model, words_to_hit=words_to_hit, n=n, threshold=0.5)._compute(words_to_hit))
