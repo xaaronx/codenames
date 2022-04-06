@@ -72,7 +72,7 @@ class EmbeddingScorer:
 
     def _preprocess(self):
         """Runs preprocessing steps to filter out bad guesses. Currently, check if all words sufficiently connected to
-        clue, if all clues are legal and if all words are sufficiently disimilar to incorrect matches.
+        clue, if all clues are legal and if all words are sufficiently dissimilar to incorrect matches.
         """
         preprocessing_steps = [
             self._check_all_connected,

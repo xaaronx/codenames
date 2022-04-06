@@ -18,6 +18,15 @@ class CodeNamesSolverAlgorithm:
         self.logger = logging.getLogger(__name__)
 
     def solve(self, words_to_hit: list, words_to_avoid: list = [], n: int = 10):
+        """Main algorithm solve method that algorithms should all utilise.
+        Loops through word combinations (e.g. [cat, dog, wolf], [cat, dog], [cat, wolf] etc.) and computes similarity.
+        Builds list of guesses and then finds top n.
+
+        :param words_to_hit: List of words to connect
+        :param words_to_avoid: List of words to avoid connecting
+        :param n: Number of solutions to return
+        :return: Pruned list of guess objects
+        """
         guesses = []
         words_combinations = self._get_word_combinations(words_to_hit)
         for words in words_combinations:
@@ -30,6 +39,11 @@ class CodeNamesSolverAlgorithm:
 
     @staticmethod
     def _get_word_combinations(words_to_hit: list) -> list:
+        """
+
+        :param words_to_hit: List of words to connect
+        :return: All combinations of words
+        """
         return list(itertools.chain(*map(lambda x: itertools.combinations(words_to_hit, x),
                                          range(1, len(words_to_hit) + 1))))
 
@@ -37,6 +51,13 @@ class CodeNamesSolverAlgorithm:
         raise NotImplementedError
 
     def _get_top_guesses(self, guesses: list, words_to_avoid: list, n: int):
+        """
+
+        :param guesses: List of candidates (/guesses)
+        :param words_to_avoid: List of words to avoid connecting
+        :param n: Number of solutions to return
+        :return: Scored list of solutions
+        """
         return EmbeddingScorer(guesses=guesses,
                                embeddings=self.model,
                                distance_metric=self.distance_metric,
