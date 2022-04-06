@@ -20,7 +20,7 @@ class Threshold:
                 (config["model"] == model) &
                 (config["distance"] == distance.__name__) &
                 (config["strategy"] == strategy) &
-                (config["algorithm"] == algorithm.__name__)].values[0]
+                (config["algorithm"] == algorithm.__name__)].threshold.values[0]
 
         except IndexError:
             logger.info(f"Using {strategy} strategy with threshold: {default_value}")

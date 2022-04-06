@@ -44,9 +44,9 @@ def get_embeddings_glove_style(path: str):
     return embeddings
 
 
-def get_embeddings_postspec_style(self) -> dict:
+def get_embeddings_postspec_style(path: str) -> dict:
     embeddings = {}
-    with open(self.embedding_path, "r") as file:
+    with open(path, "r") as file:
         for line in tqdm(file):
             split_line = line.split()
             word = split_line[0].split('_')
