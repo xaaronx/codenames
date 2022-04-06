@@ -3,22 +3,24 @@ from __future__ import annotations
 from operator import itemgetter
 
 import numpy as np
-from scipy.spatial.distance import cosine
 
+from solver.distance import Cosine
 from solver.guess import Guess
 from solver.utils import get_top_n_sorted
 
 
 class EmbeddingScorer:
-    def __init__(self, guesses: list, embeddings: dict, words_to_avoid: list, n: int,
-                 threshold: float, metric: str = "similarity_score", incorrect_words_threshold: float = 2):
+    def __init__(self, guesses: list, embeddings: dict, words_to_avoid: list, n: int, threshold: float,
+                 distance_metric=Cosine, metric: str = "similarity_score",
+                 incorrect_words_threshold_multiplier: float = 2.):
         self.guesses = guesses
         self.embeddings = embeddings
         self.words_to_avoid = words_to_avoid
+        self.distance_metric = distance_metric
         self.n = n
         self.metric = metric
         self.threshold = threshold
-        self.incorrect_words_threshold = incorrect_words_threshold
+        self.incorrect_words_threshold = incorrect_words_threshold_multiplier
 
     def _score_single(self, guess: Guess) -> Guess:
         """Takes metric of choice (from class) and multiplies by log of number of words linked.
@@ -26,7 +28,7 @@ class EmbeddingScorer:
         :param guess: Single Guess object
         :return: Updated guess object
         """
-        guess.score = getattr(guess, self.metric) * guess.num_words_linked
+        guess.score = getattr(guess, self.metric) * np.sqrt(guess.num_words_linked)
         return guess
 
     @staticmethod
@@ -45,9 +47,9 @@ class EmbeddingScorer:
         :param guess: Guess object
         :return: Guess object
         """
-        if all(1 - cosine(self.embeddings.get(word, 0),
-                          self.embeddings.get(guess.clue)
-                          ) > self.threshold
+        if all(self.distance_metric(self.embeddings.get(word, 0),
+                                    self.embeddings.get(guess.clue)
+                                    ).distance() > self.threshold
                for word in guess.linked_words):
             return guess
 
@@ -60,10 +62,10 @@ class EmbeddingScorer:
         :return: Guess object
         """
         if self.words_to_avoid:
-            if all(1 - cosine(self.embeddings.get(word, 0),
-                              self.embeddings.get(guess.clue)
-                              ) < (self.threshold * self.incorrect_words_threshold
-                   ) for word in self.words_to_avoid):
+            if all(self.distance_metric(self.embeddings.get(word, 0),
+                                        self.embeddings.get(guess.clue)
+                                        ).distance() < (self.threshold * self.incorrect_words_threshold)
+                   for word in self.words_to_avoid):
                 return guess
         else:
             return guess

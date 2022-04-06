@@ -1,11 +1,11 @@
 import random
 
-from game.board import Board
+from codenames.board import Board
 import numpy as np
 
-from game.colours import Colour
-from game.utils import flatten, matches_as_set
-from game.wordlist import WordListBuilder
+from codenames.colours import Colour
+from codenames.utils import flatten, matches_as_set
+from codenames.wordlist import WordListBuilder
 
 
 class Game:

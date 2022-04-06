@@ -1,7 +1,7 @@
 import os
 import numpy as np
 
-from game.game import GameBuilder
+from codenames.game import GameBuilder
 
 if __name__ == "__main__":
     word_list_file_name = "wordlist-eng.txt"

@@ -10,35 +10,23 @@ from solver.utils import remove_keys_from_dict, get_top_n_sorted
 
 
 class CodeNamesSolverAlgorithm:
-    def __init__(self, model: dict, words_to_hit: list, n: int, threshold: float, words_to_avoid: list = [],
-                 search_space_multiplier: int = 10):
+    def __init__(self, model: dict, threshold: float, distance_metric=Cosine, search_space_multiplier: int = 10):
         self.model = model
-        self.words_to_hit = words_to_hit
-        self.words_to_avoid = words_to_avoid
-        self.n = n
+        self.distance_metric = distance_metric
         self.threshold = threshold
         self.search_space_multiplier = search_space_multiplier
         self.logger = logging.getLogger(__name__)
 
-    def solve(self):
+    def solve(self, words_to_hit: list, words_to_avoid: list = [], n: int = 10):
         guesses = []
-        words_combinations = self._get_word_combinations(self.words_to_hit)
+        words_combinations = self._get_word_combinations(words_to_hit)
         for words in words_combinations:
-            for solution in self._compute(words):
+            for solution in self._compute(words, n):
                 clue, similarity = solution
                 guess = Guess(clue, similarity, words)
                 guesses.append(guess)
 
-        return self._get_top_guesses(guesses)
-
-    @staticmethod
-    def _cosine_vectorized(vector, array):
-        if vector.ndim == 1:
-            vector = vector.reshape(1, vector.shape[0])
-        sumyy = (array ** 2).sum(1)
-        sumxx = (vector ** 2).sum(1, keepdims=1)
-        sumxy = vector.dot(array.T)
-        return (sumxy / np.sqrt(sumxx)) / np.sqrt(sumyy)
+        return self._get_top_guesses(guesses, words_to_avoid, n)
 
     @staticmethod
     def _get_word_combinations(words_to_hit: list) -> list:
@@ -48,22 +36,21 @@ class CodeNamesSolverAlgorithm:
     def _compute(self, *args, **kwargs):
         raise NotImplementedError
 
-    def _get_top_guesses(self, guesses: list):
+    def _get_top_guesses(self, guesses: list, words_to_avoid: list, n: int):
         return EmbeddingScorer(guesses=guesses,
                                embeddings=self.model,
-                               words_to_avoid=self.words_to_avoid,
-                               n=self.n,
+                               distance_metric=self.distance_metric,
+                               words_to_avoid=words_to_avoid,
+                               n=n,
                                threshold=self.threshold
                                ).top_n_guesses()
 
 
 class MeanIndividualDistance(CodeNamesSolverAlgorithm):
-    def __init__(self, model: dict, words_to_hit: list, n: int, threshold: float, words_to_avoid: list = [],
-                 search_space_multiplier: int = 10, distance_metric=Cosine):
-        super().__init__(model, words_to_hit, n, threshold, words_to_avoid, search_space_multiplier)
-        self.distance_metric = distance_metric
+    def __init__(self, model: dict, threshold: float, search_space_multiplier: int = 10, distance_metric=Cosine):
+        super().__init__(model, threshold, distance_metric, search_space_multiplier)
 
-    def _compute(self, words: list) -> list:
+    def _compute(self, words: list, n) -> list:
         # Fetch embeddings for words of relevance
         embeddings_of_words_to_hit = np.array([self.model.get(word, np.array) for word in list(words)])
         # Remove words_to_hit from potential matches
@@ -75,7 +62,7 @@ class MeanIndividualDistance(CodeNamesSolverAlgorithm):
         # Average to get mean similarity of each candidate to all words to hit
         mean_sims = sims.T.mean(axis=0)
         # Get top n
-        indices = get_top_n_sorted(mean_sims, self.n * self.search_space_multiplier)
+        indices = get_top_n_sorted(mean_sims, n * self.search_space_multiplier)
         # Index matches against original list
         matched_words = itemgetter(*indices)(list(potential_match_embeddings.keys()))
         # Fetch also the numerical similarities
@@ -84,12 +71,10 @@ class MeanIndividualDistance(CodeNamesSolverAlgorithm):
 
 
 class SummedNearestNeighbour(CodeNamesSolverAlgorithm):
-    def __init__(self, model: dict, words_to_hit: list, n: int, threshold: float, words_to_avoid: list = [],
-                 search_space_multiplier: int = 10, distance_metric=DotProduct):
-        super().__init__(model, words_to_hit, n, threshold, words_to_avoid, search_space_multiplier)
-        self.distance_metric = distance_metric
+    def __init__(self, model: dict, threshold: float, search_space_multiplier: int = 10, distance_metric=DotProduct):
+        super().__init__(model, threshold, distance_metric, search_space_multiplier)
 
-    def _compute(self, words: list) -> list:
+    def _compute(self, words: list, n: int) -> list:
         """Computes nearest neighbors (best guesses) for a single combination of words. Uses sum of embedding vectors
         of words to hit and finds the nearest word to this summed vector.
 
@@ -108,7 +93,7 @@ class SummedNearestNeighbour(CodeNamesSolverAlgorithm):
         # Find nearest
         similarities = np.squeeze(self.distance_metric(target_vector, embeddings_as_array).distance())
         # Get top n matches
-        indices = get_top_n_sorted(similarities, self.n * self.search_space_multiplier)
+        indices = get_top_n_sorted(similarities, n * self.search_space_multiplier)
         # Index matches against original list
         matched_words = itemgetter(*indices)(list(potential_match_embeddings.keys()))
         # Fetch also the numerical similarities
