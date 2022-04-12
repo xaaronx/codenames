@@ -76,3 +76,13 @@ class SolverBuilder:
         """
         embeddings = EmbeddingsDataLoader(embedding_path).get_embeddings(get_embeddings_glove_style, "BERT")
         return cls(embeddings, "bert")
+
+    @classmethod
+    def with_definitions(cls, embedding_path: str):
+        """
+
+        :param embedding_path: Path to sBERT Definition embedding
+        :return: SolverBuilder with model now built
+        """
+        embeddings = EmbeddingsDataLoader(embedding_path).get_embeddings(get_embeddings_glove_style, "sBERT Definitions")
+        return cls(embeddings, "")

@@ -9,9 +9,9 @@ from solver.utils import initialise_logger, log_solutions
 if __name__ == "__main__":
     logger = initialise_logger()
     # embedding_path = os.path.join("..", "data", "word_embeddings", "glove", "glove.6B.300d.txt")
-    embedding_path = os.path.join("..", "data", "word_embeddings", "wordnetemb", "embedding_cleaned.txt")
+    embedding_path = os.path.join("..", "data", "word_embeddings", "definitional", "embedding.txt")
     conf_path = os.path.join("..", "data", "params.csv")
-    builder = SolverBuilder.with_wordnet(embedding_path)
+    builder = SolverBuilder.with_bert(embedding_path)
     solver = builder.build(conf_path, SummedNearestNeighbour, Cosine)
 
     words = input("Enter some words to connect with a space in between each...")
@@ -21,4 +21,3 @@ if __name__ == "__main__":
         log_solutions(solver.solve(words))
         time.sleep(0.5)
         words = input("Enter some more words to connect with a space in between each or press enter to escape...")
-

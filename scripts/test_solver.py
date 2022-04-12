@@ -28,6 +28,8 @@ if __name__ == "__main__":
     b_path = ["..", "data", "word_embeddings", "bert", "embedding.txt"]
     BERT_PATH = os.path.join(*b_path)
 
+    DEF_PATH = os.path.join("..", "data", "word_embeddings", "definitional", "embedding.txt")
+
     conf_path = os.path.join("..", "data", "params.csv")
 
     path_to_word_list = os.path.join("..", "data", "wordlist-eng.txt")
@@ -49,10 +51,11 @@ if __name__ == "__main__":
         LOGGER.info(f"Words to link: {', '.join(words_to_hit)}\n")
 
     builder_methods = {
-        "with_postspec": POSTSPEC_PATH,
-        "with_wordnet": WORDNET_PATH,
-        "with_glove": GLOVE_PATH,
-        "with_bert": BERT_PATH
+        # "with_postspec": POSTSPEC_PATH,
+        # "with_wordnet": WORDNET_PATH,
+        # "with_glove": GLOVE_PATH,
+        # "with_bert": BERT_PATH,
+        "with_definitions": DEF_PATH
     }
 
     for method in builder_methods.keys():

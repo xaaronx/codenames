@@ -30,6 +30,8 @@ Solver builders have a few methods that power a **build** method that.
   - Sentence Transformers?
 - **Documentation**
   - Docstrings
+- **Data**
+  - Have each solver method download relevant embeddings
 - **Functionality**
   - Bomb word as well as words to avoid
 - **Validation**
