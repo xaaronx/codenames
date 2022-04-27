@@ -50,7 +50,7 @@ def change_number():
 
 
 col1,col2,col3,col4,col5 = st.columns(5)
-st.write(st.session_state.rn)
+st.write(st.session_state.random_number)
 col1.write(st.session_state.words[0])
 col2.write(st.session_state.words[1])
 col3.write(st.session_state.words[2])
