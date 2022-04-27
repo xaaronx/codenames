@@ -4,6 +4,7 @@ import json
 from pathlib import Path
 from datetime import datetime
 from time import sleep
+import random
 
 import os.path
 
@@ -20,7 +21,9 @@ from googleapiclient.http import MediaFileUpload
 ### App Set Up ###
 
 st.set_page_config(layout="wide")
-st.write("v2")
+
+session_state = st.SessionState.get(random_number=random.random())
+st.write(session_state.random_number)
 
 st.title('Codenames Dataset')
 st.subheader('Instructions')
@@ -40,7 +43,7 @@ st.subheader('Your Words')
 
 ### Load words ###
 
-@st.cache(allow_output_mutation=True)
+@st.cache()
 def select_words():
     words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5).values
     words = [i[0] for i in words]
