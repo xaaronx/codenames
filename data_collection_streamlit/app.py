@@ -62,7 +62,7 @@ st.write("")
 with st.form("my_form", clear_on_submit=True):
     st.write("Select your words")
 
-    word1 = st.checkbox(label = words[0])
+    word1 = st.checkbox(label = 'a')
     #word2 = st.checkbox(label = words[1])
     #word3 = st.checkbox(label = words[2])
     #word4 = st.checkbox(label = words[3])
