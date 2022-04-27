@@ -45,7 +45,7 @@ if "words" not in st.session_state:
     st.session_state["words"] = [i[0] for i in words]
 
 def change_number():
-    st.session_state["rn"] = random.randint(0,99999)
+    st.session_state["random_number"] = random.randint(0,99999)
     return
 
 
