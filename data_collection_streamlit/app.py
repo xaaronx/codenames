@@ -48,6 +48,8 @@ if "words" not in st.session_state:
 
 def change_number():
     st.session_state["random_number"] = random.randint(0,99999)
+    words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5, random_state=st.session_state.random_number).values
+    st.session_state["words"] = [i[0] for i in words]
     return
 
 
