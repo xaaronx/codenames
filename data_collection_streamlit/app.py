@@ -75,6 +75,9 @@ if b:
         submitted = st.form_submit_button("Submit")
         if submitted:
             st.write(word1)
+            time.sleep(5)
+
+
 
     a = st.button('press to continue')
     if a:
