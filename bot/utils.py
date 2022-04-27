@@ -57,6 +57,19 @@ def get_embeddings_postspec_style(path: str) -> dict:
     return embeddings
 
 
+def get_embeddings_paragram_style(path: str) -> dict:
+    embeddings = {}
+    with open(path, "rb") as file:
+        next(file)
+        for line in tqdm(file):
+            line = line.decode("latin")
+            split_line = line.strip().split(' ')
+            word = split_line[0]
+            embedding = np.array(split_line[1:], dtype=float)
+            embeddings[word] = embedding
+    return embeddings
+
+
 def initialise_logger():
     logger = logging.getLogger(__name__)
     logging.basicConfig(level=logging.INFO, format='%(message)8s')

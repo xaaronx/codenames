@@ -2,10 +2,10 @@ import os
 import random
 
 from codenames.wordlist import WordListBuilder
-from solver.algorithms import SummedNearestNeighbour, MeanIndividualDistance
-from solver.distance import DotProduct, Cosine
-from solver.solver import SolverBuilder
-from solver.utils import initialise_logger, log_solutions
+from bot.algorithms import SummedNearestNeighbour, MeanIndividualDistance
+from bot.distance import DotProduct, Cosine
+from bot.solver import SolverBuilder
+from bot.utils import initialise_logger, log_solutions
 
 
 def get_words(words):
@@ -51,22 +51,23 @@ if __name__ == "__main__":
         LOGGER.info(f"Words to link: {', '.join(words_to_hit)}\n")
 
     builder_methods = {
-        # "with_postspec": POSTSPEC_PATH,
-        # "with_wordnet": WORDNET_PATH,
-        # "with_glove": GLOVE_PATH,
-        # "with_bert": BERT_PATH,
+        "with_postspec": POSTSPEC_PATH,
+        "with_wordnet": WORDNET_PATH,
+        "with_glove": GLOVE_PATH,
+        "with_bert": BERT_PATH,
         "with_definitions": DEF_PATH
     }
 
-    for method in builder_methods.keys():
-        solverbuilder = getattr(SolverBuilder, method)(embedding_path=builder_methods[method])
-        for algorithm in algorithms:
-            for distance in distance_metrics:
-                try:
-                    LOGGER.info(f"Running {method.split('_')[1]} with {algorithm.__name__} and {distance.__name__} as distance metric.")
-                    solverbuilder.algorithm = algorithm
-                    solverbuilder.distance_metric = distance
-                    solver = solverbuilder.build(conf_path, algorithm, distance, 'moderate')
-                    log_solutions(solver.solve(words_to_hit=words_to_hit, n=n))
-                except Exception as e:
-                    LOGGER.error(f"Errored with exception: {e}")
+    for strategy in strategies:
+        for method in builder_methods.keys():
+            solverbuilder = getattr(SolverBuilder, method)(embedding_path=builder_methods[method])
+            for algorithm in algorithms:
+                for distance in distance_metrics:
+                    try:
+                        LOGGER.info(f"Running {method.split('_')[1]} with {algorithm.__name__} and {distance.__name__} as distance metric.")
+                        solverbuilder.algorithm = algorithm
+                        solverbuilder.distance_metric = distance
+                        solver = solverbuilder.build(conf_path, algorithm, distance, strategy)
+                        log_solutions(solver.solve(words_to_hit=words_to_hit, n=n))
+                    except Exception as e:
+                        LOGGER.error(f"Errored with exception: {e}")

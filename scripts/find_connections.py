@@ -1,7 +1,7 @@
 import os
 
-from solver.algorithms import SummedNearestNeighbour
-from solver.solver import WordNetSolver
+from bot.algorithms import SummedNearestNeighbour
+from bot.solver import WordNetSolver
 
 if __name__ == "__main__":
 

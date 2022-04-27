@@ -4,15 +4,15 @@ from operator import itemgetter
 
 import numpy as np
 
-from solver.distance import Cosine
-from solver.guess import Guess
-from solver.utils import get_top_n_sorted
+from bot.distance import Cosine
+from bot.guess import Guess
+from bot.utils import get_top_n_sorted
 
 
 class EmbeddingScorer:
     def __init__(self, guesses: list, embeddings: dict, words_to_avoid: list, n: int, threshold: float,
                  distance_metric=Cosine, metric: str = "similarity_score",
-                 incorrect_words_threshold_multiplier: float = 2.):
+                 incorrect_words_threshold_multiplier: float = 1):
         self.guesses = guesses
         self.embeddings = embeddings
         self.words_to_avoid = words_to_avoid
@@ -28,7 +28,7 @@ class EmbeddingScorer:
         :param guess: Single Guess object
         :return: Updated guess object
         """
-        guess.score = getattr(guess, self.metric) * np.sqrt(guess.num_words_linked)
+        guess.score = getattr(guess, self.metric) * guess.num_words_linked
         return guess
 
     @staticmethod
@@ -56,7 +56,7 @@ class EmbeddingScorer:
     def _check_incorrect_matches(self, guess: Guess) -> Guess:
         """Checks against opponents, neutral and bomb words (all contained in self.words_to_avoid). Akin to
         _check_all_connected, finds cosine similarity between clue and aforementioned anti-words and if any
-        over threshold returns None. Threshold is set to be more liberal
+        over threshold returns None. Threshold is set to be more liberal.
 
         :param guess: Guess object
         :return: Guess object

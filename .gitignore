@@ -1,7 +1,7 @@
 data/word_embeddings
 
 research/*
-solver/notebooks
+bot/notebooks
 
 .DS_Store
 .idea

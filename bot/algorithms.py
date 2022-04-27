@@ -4,9 +4,9 @@ from operator import itemgetter
 
 import numpy as np
 
-from solver.distance import Cosine, DotProduct
-from solver.scorer import Guess, EmbeddingScorer
-from solver.utils import remove_keys_from_dict, get_top_n_sorted
+from bot.distance import Cosine, DotProduct
+from bot.scorer import Guess, EmbeddingScorer
+from bot.utils import remove_keys_from_dict, get_top_n_sorted
 
 
 class CodeNamesSolverAlgorithm:
@@ -30,10 +30,13 @@ class CodeNamesSolverAlgorithm:
         guesses = []
         words_combinations = self._get_word_combinations(words_to_hit)
         for words in words_combinations:
-            for solution in self._compute(words, n):
-                clue, similarity = solution
-                guess = Guess(clue, similarity, words)
-                guesses.append(guess)
+            try:
+                for solution in self._compute(words, n):
+                    clue, similarity = solution
+                    guess = Guess(clue, similarity, words)
+                    guesses.append(guess)
+            except TypeError:
+                self.logger.error("Probably can't find source word in embeddings...")
 
         return self._get_top_guesses(guesses, words_to_avoid, n)
 
@@ -92,7 +95,7 @@ class MeanIndividualDistance(CodeNamesSolverAlgorithm):
 
 
 class SummedNearestNeighbour(CodeNamesSolverAlgorithm):
-    def __init__(self, model: dict, threshold: float, search_space_multiplier: int = 10, distance_metric=DotProduct):
+    def __init__(self, model: dict, threshold: float, search_space_multiplier: int = 10, distance_metric=Cosine):
         super().__init__(model, threshold, distance_metric, search_space_multiplier)
 
     def _compute(self, words: list, n: int) -> list:
@@ -106,7 +109,7 @@ class SummedNearestNeighbour(CodeNamesSolverAlgorithm):
         # Fetch embeddings for words of relevance
         embeddings_of_words_to_hit = np.array([self.model.get(word, np.array) for word in list(words)])
         # Get sum of fetched embeddings
-        target_vector = np.sum(embeddings_of_words_to_hit, axis=0)
+        target_vector = np.mean(embeddings_of_words_to_hit, axis=0)
         # Remove words_to_hit from potential matches
         potential_match_embeddings = remove_keys_from_dict(self.model, words)
         # Convert to array
