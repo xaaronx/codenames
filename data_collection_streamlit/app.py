@@ -59,20 +59,22 @@ if st.button(label = 'Skip these words'):
 st.write("")
 
 ### Select words ###
-with st.form("my_form", clear_on_submit=True):
+with st.form("my_form", clear_on_submit=False):
     st.write("Select your words")
 
-    word1 = st.checkbox(label = 'a')
-    #word2 = st.checkbox(label = words[1])
-    #word3 = st.checkbox(label = words[2])
-    #word4 = st.checkbox(label = words[3])
-    #word5 = st.checkbox(label = words[4])
+    word1 = st.checkbox(label = words[0])
+    word2 = st.checkbox(label = words[1])
+    word3 = st.checkbox(label = words[2])
+    word4 = st.checkbox(label = words[3])
+    word5 = st.checkbox(label = words[4])
 
     clue = st.text_input(label='Enter your single word clue:', value="")
     submitted = st.form_submit_button("Submit")
     if submitted:
-        st.write(word1)
         selections = [word1,word2,word3,word4,word5]
+
+        st.write(selections)
+
         selected_words = ';'.join(
             [k for k,v in zip(words, selections) if v ==True])
         unselected_words = ';'.join(
