@@ -22,7 +22,7 @@ from googleapiclient.http import MediaFileUpload
 
 st.set_page_config(layout="wide")
 
-st.session_state['random_number'] = random.random()
+st.session_state['random_number'] = random.randint(0,99999)
 st.write(st.session_state.random_number)
 
 st.title('Codenames Dataset')
@@ -45,7 +45,7 @@ st.subheader('Your Words')
 
 @st.cache()
 def select_words():
-    words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5).values
+    words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5, random_state = st.session_state.random_number).values
     words = [i[0] for i in words]
     return words
 
