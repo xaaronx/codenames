@@ -38,7 +38,7 @@ st.subheader('Your Words')
 
 ### Load words ###
 
-@st.cache(allow_output_mutation=True)
+@st.cache()
 def select_words():
     words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5).values
     words = [i[0] for i in words]
