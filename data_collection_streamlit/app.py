@@ -61,10 +61,11 @@ st.write("")
 ### Select words ###
 with st.form("my_form", clear_on_submit=True):
     selected_words = st.multiselect(label='Selected words:', options = words)
+    checkbox_val = st.checkbox("Form checkbox")
     clue = st.text_input(label='Enter your single word clue:', value="")
     submitted = st.form_submit_button("Submit")
     if submitted:
-        st.write(selected_words, clue)
+        st.write(selected_words, clue. checkbox_val)
         datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
         results = {
             'words':';'.join(selected_words),
