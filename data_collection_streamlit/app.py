@@ -48,7 +48,7 @@ b = st.button('generate words')
 
 if b:
     col1,col2,col3,col4,col5 = st.columns(5)
-    st.session_state.words = select_words()
+    words = select_words()
     col1.write(words[0])
     col2.write(words[1])
     col3.write(words[2])
