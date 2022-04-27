@@ -16,10 +16,12 @@ from googleapiclient.http import MediaFileUpload
 
 
 
-st.write("v2")
+
 ### App Set Up ###
 
 st.set_page_config(layout="wide")
+st.write("v2")
+
 st.title('Codenames Dataset')
 st.subheader('Instructions')
 st.write("""
