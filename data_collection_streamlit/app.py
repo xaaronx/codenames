@@ -38,19 +38,18 @@ Once you've selected your words, a box will appear for you to enter the clue. Ma
 st.subheader('Your Words')
 
 ### Load words ###
-@st.cache()
 def select_words():
     words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5).values
     words = [i[0] for i in words]
     return words
 
 col1,col2,col3,col4,col5 = st.columns(5)
-words = select_words()
-col1.write(words[0])
-col2.write(words[1])
-col3.write(words[2])
-col4.write(words[3])
-col5.write(words[4])
+st.session_state.words = select_words()
+col1.write(st.session_state.words[0])
+col2.write(st.session_state.words[1])
+col3.write(st.session_state.words[2])
+col4.write(st.session_state.words[3])
+col5.write(st.session_state.words[4])
 
 ### Skip Button ###
 st.write("")
@@ -62,7 +61,7 @@ st.write("")
 with st.form("my_form", clear_on_submit=False):
     st.write("Select your words")
 
-    word1 = st.checkbox(label = words[0])
+    word1 = st.checkbox(label = session_state.words[0])
     #word2 = st.checkbox(label = words[1])
     #word3 = st.checkbox(label = words[2])
     #word4 = st.checkbox(label = words[3])
