@@ -71,11 +71,17 @@ with st.form("my_form", clear_on_submit=True):
     clue = st.text_input(label='Enter your single word clue:', value="")
     submitted = st.form_submit_button("Submit")
     if submitted:
-        st.write(selected_words, clue, checkbox_val)
+        selections = [word1,word2,word3,word4,word5]
+        selected_words = ';'.join(
+            [k for k,v in zip(words, selections) if v ==True])
+        unselected_words = ';'.join(
+            [k for k,v in zip(words, selections) if v ==False])
+
+        st.write(selected_words, unselected_words, clue)
         datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
         results = {
-            'words':';'.join(selected_words),
-            'unselected_words': ';'.join([i for i in words if i not in selected_words]),
+            'selected_words':selected_words,
+            'unselected_words': unselected_words,
             'clue':clue}
         results = json.dumps(results)
         file_name = 'data_{}.json'.format(datetimenow)
