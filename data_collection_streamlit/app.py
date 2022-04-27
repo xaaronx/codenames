@@ -60,10 +60,14 @@ st.write("")
 
 ### Select words ###
 with st.form("my_form", clear_on_submit=True):
-    selected_words = st.multiselect(label='Selected words:', options = words)
+    st.write("Select your words")
     col6, col7 = st.columns(2)
-    word1 = col6.checkbox("Form checkbox")
-    word2 = col7.checkbox("Form checkbox")
+    word1 = col6.checkbox(label = words[0])
+    word2 = col7.checkbox(label = words[0])
+    word3 = col6.checkbox(label = words[0])
+    word4 = col7.checkbox(label = words[0])
+    word5 = col6.checkbox(label = words[0])
+
     clue = st.text_input(label='Enter your single word clue:', value="")
     submitted = st.form_submit_button("Submit")
     if submitted:
