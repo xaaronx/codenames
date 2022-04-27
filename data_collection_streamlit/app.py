@@ -82,12 +82,12 @@ with st.form("my_form", clear_on_submit=False):
     if submitted:
         selections = [word1,word2,word3,word4,word5]
         selected_words = ';'.join(
-            [k for k,v in zip(words, selections) if v ==True])
+            [k for k,v in zip(st.session_state.words, selections) if v ==True])
         unselected_words = ';'.join(
-            [k for k,v in zip(words, selections) if v ==False])
+            [k for k,v in zip(st.session_state.words, selections) if v ==False])
 
         st.write("selected", selected_words, "unselected", unselected_words, "clue",clue)
-        
+
         datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
         results = {
             'selected_words':selected_words,
