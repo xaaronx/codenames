@@ -60,33 +60,31 @@ st.write("")
 
 ### Select words ###
 with st.form("my_form", clear_on_submit=True):
-    selected_words = st.multiselect(label='Selected words:', options = words, default=None)
-
+    selected_words = st.multiselect(label='Selected words:', options = words)
     clue = st.text_input(label='Enter your single word clue:', value="")
-
     submitted = st.form_submit_button("Submit")
-    st.write(selected_words, clue)
-    if submitted:
-        st.write(selected_words, clue)
-        datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
-        results = {
-            'words':';'.join(selected_words),
-            'unselected_words': ';'.join([i for i in words if i not in selected_words]),
-            'clue':clue}
-        results = json.dumps(results)
-        file_name = 'data_{}.json'.format(datetimenow)
-        file_from = Path(__file__).parents[0] / file_name
-        with open(file_from, 'w') as f:
-            json.dump(results, f)
 
-        #try:
-        creds = Credentials(token=st.secrets['token'],
-                            refresh_token = st.secrets['refresh_token'],
-                            token_uri = st.secrets['token_uri'],
-                            client_id=st.secrets['client_id'],
-                            client_secret=st.secrets['client_secret'],
-                            scopes=st.secrets['scopes'],
-                            expiry=datetime.strptime(st.secrets['expiry'], "%Y-%m-%dT%H:%M:%S"))
+        if submitted:
+            st.write(selected_words, clue)
+            datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
+            results = {
+                'words':';'.join(selected_words),
+                'unselected_words': ';'.join([i for i in words if i not in selected_words]),
+                'clue':clue}
+            results = json.dumps(results)
+            file_name = 'data_{}.json'.format(datetimenow)
+            file_from = Path(__file__).parents[0] / file_name
+            with open(file_from, 'w') as f:
+                json.dump(results, f)
+
+            #try:
+            creds = Credentials(token=st.secrets['token'],
+                                refresh_token = st.secrets['refresh_token'],
+                                token_uri = st.secrets['token_uri'],
+                                client_id=st.secrets['client_id'],
+                                client_secret=st.secrets['client_secret'],
+                                scopes=st.secrets['scopes'],
+                                expiry=datetime.strptime(st.secrets['expiry'], "%Y-%m-%dT%H:%M:%S"))
 
 
         service = build('drive', 'v3', credentials=creds)
