@@ -32,6 +32,8 @@ Read the list of words below. Can you think for a clue that links to them togeth
 Examples of some good clues:
 - **Words**: Football, London and Stadium **Clue**: Arsenal
 - **Words**: Poison, Bow and Fire **Clue**: Arrow
+"""
+
 st.write("")
 st.write("""
 Use the form below to select how many words you are linking together. More words is more difficult, but if you think you have a good clue, go for it!
