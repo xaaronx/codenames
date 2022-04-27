@@ -59,52 +59,50 @@ for word in words[3:]:
 ### Skip Button ###
 st.write("")
 if st.button(label = 'Skip these words'):
-    #st.legacy_caching.clear_cache()
+    st.legacy_caching.clear_cache()
     st.experimental_rerun()
 st.write("")
 
 ### Select words ###
+with st.form("my_form"):
+    selected_words = st.multiselect(label='Selected words:', options = words, default=None)
 
-selected_words = st.multiselect(label='Selected words:', options = words, default=None)
+    if selected_words:
+        clue = st.text_input(label='Enter your single word clue:', value="")
+        if clue:
+            if st.form_submit_button(label = 'Submit your clue'):
+                datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
+                results = {
+                    'words':';'.join(selected_words),
+                    'unselected_words': ';'.join([i for i in words if i not in selected_words]),
+                    'clue':clue}
+                results = json.dumps(results)
+                file_name = 'data_{}.json'.format(datetimenow)
+                file_from = Path(__file__).parents[0] / file_name
+                with open(file_from, 'w') as f:
+                    json.dump(results, f)
 
-if selected_words:
-    clue = st.text_input(label='Enter your single word clue:', value="")
-    if clue:
-        if st.button(label = 'Submit your clue'):
-            datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
-            results = {
-                'words':';'.join(selected_words),
-                'unselected_words': ';'.join([i for i in words if i not in selected_words]),
-                'clue':clue}
-            results = json.dumps(results)
-            file_name = 'data_{}.json'.format(datetimenow)
-            file_from = Path(__file__).parents[0] / file_name
-            with open(file_from, 'w') as f:
-                json.dump(results, f)
-
-            #try:
-            creds = Credentials(token=st.secrets['token'],
-                                refresh_token = st.secrets['refresh_token'],
-                                token_uri = st.secrets['token_uri'],
-                                client_id=st.secrets['client_id'],
-                                client_secret=st.secrets['client_secret'],
-                                scopes=st.secrets['scopes'],
-                                expiry=datetime.strptime(st.secrets['expiry'], "%Y-%m-%dT%H:%M:%S"))
+                #try:
+                creds = Credentials(token=st.secrets['token'],
+                                    refresh_token = st.secrets['refresh_token'],
+                                    token_uri = st.secrets['token_uri'],
+                                    client_id=st.secrets['client_id'],
+                                    client_secret=st.secrets['client_secret'],
+                                    scopes=st.secrets['scopes'],
+                                    expiry=datetime.strptime(st.secrets['expiry'], "%Y-%m-%dT%H:%M:%S"))
 
 
-            service = build('drive', 'v3', credentials=creds)
-            file_metadata = {'name': file_name,
-                             'parents': ['150dCgltvQa5gKum45F-fPlhKZ_tG0347']}
-            media = MediaFileUpload(file_from)
-            file = service.files().create(body=file_metadata,
-                                          media_body=media,
-                                          fields='id').execute()
+                service = build('drive', 'v3', credentials=creds)
+                file_metadata = {'name': file_name,
+                                 'parents': ['150dCgltvQa5gKum45F-fPlhKZ_tG0347']}
+                media = MediaFileUpload(file_from)
+                file = service.files().create(body=file_metadata,
+                                              media_body=media,
+                                              fields='id').execute()
             #except:
             #st.write(results)
             #st.error('Error: Contact Adam Shafi or Aaron Breuer-Weil')
             #sleep(10)
 
-            st.legacy_caching.clear_cache()
-            st.experimental_rerun()
 
 
