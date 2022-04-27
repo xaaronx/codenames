@@ -86,13 +86,13 @@ with st.form("my_form", clear_on_submit=True):
                             expiry=datetime.strptime(st.secrets['expiry'], "%Y-%m-%dT%H:%M:%S"))
 
 
-    service = build('drive', 'v3', credentials=creds)
-    file_metadata = {'name': file_name,
-                     'parents': ['150dCgltvQa5gKum45F-fPlhKZ_tG0347']}
-    media = MediaFileUpload(file_from)
-    file = service.files().create(body=file_metadata,
-                                  media_body=media,
-                                  fields='id').execute()
+        service = build('drive', 'v3', credentials=creds)
+        file_metadata = {'name': file_name,
+                         'parents': ['150dCgltvQa5gKum45F-fPlhKZ_tG0347']}
+        media = MediaFileUpload(file_from)
+        file = service.files().create(body=file_metadata,
+                                      media_body=media,
+                                      fields='id').execute()
 
 
 
