@@ -39,9 +39,11 @@ st.subheader('Your Words')
 
 ### Load words ###
 
-if "words" not in st.session_state:
+
+if "random_number" not in st.session_state:
     st.session_state["random_number"] = random.randint(0,99999)
-    words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5, random_state=st.session_state.rn).values
+if "words" not in st.session_state:
+    words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5, random_state=st.session_state.random_number).values
     st.session_state["words"] = [i[0] for i in words]
 
 def change_number():
