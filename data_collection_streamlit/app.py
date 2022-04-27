@@ -77,7 +77,7 @@ with st.form("my_form", clear_on_submit=False):
     #word5 = st.checkbox(label = words[4])
 
     clue = st.text_input(label='Enter your single word clue:', value="")
-    submitted = st.form_submit_button("Submit")
+    submitted = st.form_submit_button("Submit", on_click=change_number)
     if submitted:
         st.write(word1)
 
