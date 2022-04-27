@@ -38,7 +38,7 @@ Once you've selected your words, a box will appear for you to enter the clue. Ma
 st.subheader('Your Words')
 
 ### Load words ###
-
+@st.cache()
 def select_words():
     words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5).values
     words = [i[0] for i in words]
