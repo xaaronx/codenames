@@ -81,7 +81,8 @@ with st.form("my_form", clear_on_submit=False):
     if submitted:
         st.write(word1)
         sleep(5)
-        change_number()
+        st.experimental_rerun()
+        #change_number()
 
 a = st.button('press to continue')
 if a:
