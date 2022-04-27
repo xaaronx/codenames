@@ -21,10 +21,6 @@ from googleapiclient.http import MediaFileUpload
 ### App Set Up ###
 
 st.set_page_config(layout="wide")
-
-st.session_state['random_number'] = random.randint(0,99999)
-st.write(st.session_state.random_number)
-
 st.title('Codenames Dataset')
 st.subheader('Instructions')
 st.write("""
@@ -43,23 +39,22 @@ st.subheader('Your Words')
 
 ### Load words ###
 
-@st.cache()
 def select_words():
-    words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5, random_state = st.session_state.random_number).values
+    words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5).values
     words = [i[0] for i in words]
     return words
 
-col1,col2,col3 = st.columns([1,1,2])
+col1,col2,col3,col4,col5 = st.columns(5)
 words = select_words()
-for word in words[:3]:
-    col1.write(word)
-for word in words[3:]:
-    col2.write(word)
+col1.write(word[0])
+col2.write(word[1])
+col3.write(word[2])
+col4.write(word[3])
+col5.write(word[4])
 
 ### Skip Button ###
 st.write("")
 if st.button(label = 'Skip these words'):
-    st.legacy_caching.clear_cache()
     st.experimental_rerun()
 st.write("")
 
@@ -100,10 +95,7 @@ with st.form("my_form"):
         file = service.files().create(body=file_metadata,
                                       media_body=media,
                                       fields='id').execute()
-        #except:
-        #st.write(results)
-        #st.error('Error: Contact Adam Shafi or Aaron Breuer-Weil')
-        #sleep(10)
+
 
 
 
