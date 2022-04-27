@@ -59,7 +59,7 @@ for word in words[3:]:
 ### Skip Button ###
 st.write("")
 if st.button(label = 'Skip these words'):
-    st.legacy_caching.clear_cache()
+    #st.legacy_caching.clear_cache()
     st.experimental_rerun()
 st.write("")
 
