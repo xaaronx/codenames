@@ -77,7 +77,7 @@ with st.form("my_form", clear_on_submit=True):
         unselected_words = ';'.join(
             [k for k,v in zip(words, selections) if v ==False])
         st.write(selections)
-        st.write("selected", selected_words, "unselected": unselected_words, "clue":clue)
+        st.write("selected", selected_words, "unselected", unselected_words, "clue",clue)
         datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
         results = {
             'selected_words':selected_words,
