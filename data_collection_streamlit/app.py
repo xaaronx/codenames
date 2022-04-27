@@ -63,10 +63,10 @@ with st.form("my_form", clear_on_submit=True):
     st.write("Select your words")
 
     word1 = st.checkbox(label = words[0])
-    word2 = st.checkbox(label = words[1])
-    word3 = st.checkbox(label = words[2])
-    word4 = st.checkbox(label = words[3])
-    word5 = st.checkbox(label = words[4])
+    #word2 = st.checkbox(label = words[1])
+    #word3 = st.checkbox(label = words[2])
+    #word4 = st.checkbox(label = words[3])
+    #word5 = st.checkbox(label = words[4])
 
     clue = st.text_input(label='Enter your single word clue:', value="")
     submitted = st.form_submit_button("Submit")
