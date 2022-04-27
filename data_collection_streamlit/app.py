@@ -80,7 +80,7 @@ with st.form("my_form", clear_on_submit=False):
     submitted = st.form_submit_button("Submit")
     if submitted:
         st.write(word1)
-        time.sleep(5)
+        sleep(5)
         change_number()
 
 a = st.button('press to continue')
