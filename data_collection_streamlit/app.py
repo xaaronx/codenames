@@ -73,7 +73,7 @@ with st.form("my_form", clear_on_submit=False):
     if submitted:
         st.write(word1)
 
-a = st.button('press to continue'):
+a = st.button('press to continue')
 if a:
     selections = [word1,word2,word3,word4,word5]
 
