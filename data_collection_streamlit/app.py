@@ -33,12 +33,10 @@ For example, a good clue for the words: Football, London and Stadium would be Ar
 st.write("")
 st.write("""
 Use the form below to select how many words you are linking together. More words is more difficult, but if you think you have a good clue, go for it!
-Once you've selected your words, a box will appear for you to enter the clue. Make sure you press the 'submit your clue' button when you are happy.
+Once you've selected your words, type a single word clue and hit submit.
 """)
-st.subheader('Your Words')
 
 ### Load words ###
-
 
 if "random_number" not in st.session_state:
     st.session_state["random_number"] = random.randint(0,99999)
@@ -51,15 +49,6 @@ def change_number():
     words = pd.read_csv(Path(__file__).parents[0] / 'word_list.csv').sample(n=5, random_state=st.session_state.random_number).values
     st.session_state["words"] = [i[0] for i in words]
     return
-
-
-col1,col2,col3,col4,col5 = st.columns(5)
-st.write(st.session_state.random_number)
-col1.write(st.session_state.words[0])
-col2.write(st.session_state.words[1])
-col3.write(st.session_state.words[2])
-col4.write(st.session_state.words[3])
-col5.write(st.session_state.words[4])
 
 ### Skip Button ###
 st.write("")
@@ -116,7 +105,8 @@ with st.form("my_form", clear_on_submit=False):
         file = service.files().create(body=file_metadata,
                                       media_body=media,
                                       fields='id').execute()
-
+        st.success('Submission Recorded. Thanks!')
+        sleep(2)
         change_number()
         st.experimental_rerun()
 
