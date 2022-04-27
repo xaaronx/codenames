@@ -22,8 +22,8 @@ from googleapiclient.http import MediaFileUpload
 
 st.set_page_config(layout="wide")
 
-session_state = st.SessionState.get(random_number=random.random())
-st.write(session_state.random_number)
+state = st.session_state.get(random_number=random.random())
+st.write(state.random_number)
 
 st.title('Codenames Dataset')
 st.subheader('Instructions')
