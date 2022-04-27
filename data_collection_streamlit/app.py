@@ -70,7 +70,9 @@ with st.form("my_form", clear_on_submit=False):
 
     clue = st.text_input(label='Enter your single word clue:', value="")
     submitted = st.form_submit_button("Submit")
+    st.write(word1)
     if submitted:
+        st.write(word1)
         selections = [word1,word2,word3,word4,word5]
 
         st.write(selections)
