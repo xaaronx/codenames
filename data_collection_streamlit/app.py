@@ -65,7 +65,7 @@ with st.form("my_form", clear_on_submit=True):
     clue = st.text_input(label='Enter your single word clue:', value="")
 
     submitted = st.form_submit_button("Submit")
-
+    st.write(selected_words, clue)
     if submitted:
         st.write(selected_words, clue)
         datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
