@@ -29,7 +29,9 @@ Read the list of words below. Can you think for a clue that links to them togeth
 - The clue cannot be one of the actual words
 - The clue cannot be only rhyming
 
-For example, a good clue for the words: Football, London and Stadium would be Arsenal. For Poison, Bow and Fire, a good clue would be Arrow.""")
+Examples of some good clues:
+- **Words**: Football, London and Stadium **Clue**: Arsenal
+- **Words**: Poison, Bow and Fire **Clue**: Arrow
 st.write("")
 st.write("""
 Use the form below to select how many words you are linking together. More words is more difficult, but if you think you have a good clue, go for it!
@@ -75,7 +77,7 @@ with st.form("my_form", clear_on_submit=True):
         unselected_words = ';'.join(
             [k for k,v in zip(st.session_state.words, selections) if v ==False])
 
-        st.write("selected", selected_words, "unselected", unselected_words, "clue",clue)
+        #st.write("selected", selected_words, "unselected", unselected_words, "clue",clue)
 
         datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
         results = {
