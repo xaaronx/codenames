@@ -71,6 +71,7 @@ with st.form("my_form", clear_on_submit=True):
     clue = st.text_input(label='Enter your single word clue:', value="")
     submitted = st.form_submit_button("Submit")
     if submitted:
+        st.write(word1)
         selections = [word1,word2,word3,word4,word5]
         selected_words = ';'.join(
             [k for k,v in zip(words, selections) if v ==True])
