@@ -32,7 +32,7 @@ Read the list of words below. Can you think for a clue that links to them togeth
 Examples of some good clues:
 - **Words**: Football, London and Stadium **Clue**: Arsenal
 - **Words**: Poison, Bow and Fire **Clue**: Arrow
-"""
+""")
 
 st.write("")
 st.write("""
