@@ -56,7 +56,7 @@ st.button("Skip words?", on_click=change_number)
 st.write("")
 
 ### Select words ###
-with st.form("my_form", clear_on_submit=False):
+with st.form("my_form", clear_on_submit=True):
     st.write("Select your words")
 
     word1 = st.checkbox(label = st.session_state.words[0])
