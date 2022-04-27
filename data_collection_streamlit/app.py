@@ -46,11 +46,11 @@ def select_words():
 
 col1,col2,col3,col4,col5 = st.columns(5)
 words = select_words()
-col1.write(word[0])
-col2.write(word[1])
-col3.write(word[2])
-col4.write(word[3])
-col5.write(word[4])
+col1.write(words[0])
+col2.write(words[1])
+col3.write(words[2])
+col4.write(words[3])
+col5.write(words[4])
 
 ### Skip Button ###
 st.write("")
