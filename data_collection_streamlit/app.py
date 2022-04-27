@@ -44,7 +44,7 @@ def select_words():
     return words
 
 def form_callback():
-    st.write(st.session_state.word1)
+    st.write('session state', st.session_state.word1)
 
 col1,col2,col3,col4,col5 = st.columns(5)
 st.session_state.words = select_words()
@@ -72,6 +72,7 @@ with st.form("my_form", clear_on_submit=False):
 
     clue = st.text_input(label='Enter your single word clue:', value="")
     submitted = st.form_submit_button("Submit", on_click=form_callback)
+
     if submitted:
         st.write(word1)
 
