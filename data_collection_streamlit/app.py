@@ -80,10 +80,10 @@ with st.form("my_form", clear_on_submit=False):
     submitted = st.form_submit_button("Submit")
     if submitted:
         st.write(word1)
-        sleep(5)
+        sleep(2)
+        change_number()
         st.experimental_rerun()
-        #change_number()
-
+        
 a = st.button('press to continue')
 if a:
     selections = [word1,word2,word3,word4,word5]
