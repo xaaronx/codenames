@@ -71,59 +71,54 @@ with st.form("my_form", clear_on_submit=False):
     st.write("Select your words")
 
     word1 = st.checkbox(label = st.session_state.words[0])
-    #word2 = st.checkbox(label = words[1])
-    #word3 = st.checkbox(label = words[2])
-    #word4 = st.checkbox(label = words[3])
-    #word5 = st.checkbox(label = words[4])
+    word2 = st.checkbox(label = st.session_state.words[1])
+    word3 = st.checkbox(label = st.session_state.words[2])
+    word4 = st.checkbox(label = st.session_state.words[3])
+    word5 = st.checkbox(label = st.session_state.words[4])
 
     clue = st.text_input(label='Enter your single word clue:', value="")
     submitted = st.form_submit_button("Submit")
+
     if submitted:
-        st.write(word1)
-        sleep(2)
+        selections = [word1,word2,word3,word4,word5]
+        selected_words = ';'.join(
+            [k for k,v in zip(words, selections) if v ==True])
+        unselected_words = ';'.join(
+            [k for k,v in zip(words, selections) if v ==False])
+
+        st.write("selected", selected_words, "unselected", unselected_words, "clue",clue)
+        
+        datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
+        results = {
+            'selected_words':selected_words,
+            'unselected_words': unselected_words,
+            'clue':clue}
+        results = json.dumps(results)
+        file_name = 'data_{}.json'.format(datetimenow)
+        file_from = Path(__file__).parents[0] / file_name
+        with open(file_from, 'w') as f:
+            json.dump(results, f)
+
+        #try:
+        creds = Credentials(token=st.secrets['token'],
+                            refresh_token = st.secrets['refresh_token'],
+                            token_uri = st.secrets['token_uri'],
+                            client_id=st.secrets['client_id'],
+                            client_secret=st.secrets['client_secret'],
+                            scopes=st.secrets['scopes'],
+                            expiry=datetime.strptime(st.secrets['expiry'], "%Y-%m-%dT%H:%M:%S"))
+
+
+        service = build('drive', 'v3', credentials=creds)
+        file_metadata = {'name': file_name,
+                         'parents': ['150dCgltvQa5gKum45F-fPlhKZ_tG0347']}
+        media = MediaFileUpload(file_from)
+        file = service.files().create(body=file_metadata,
+                                      media_body=media,
+                                      fields='id').execute()
+
         change_number()
         st.experimental_rerun()
-        
-a = st.button('press to continue')
-if a:
-    selections = [word1,word2,word3,word4,word5]
-
-    st.write(selections)
-
-    selected_words = ';'.join(
-        [k for k,v in zip(words, selections) if v ==True])
-    unselected_words = ';'.join(
-        [k for k,v in zip(words, selections) if v ==False])
-    st.write(selections)
-    st.write("selected", selected_words, "unselected", unselected_words, "clue",clue)
-    datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
-    results = {
-        'selected_words':selected_words,
-        'unselected_words': unselected_words,
-        'clue':clue}
-    results = json.dumps(results)
-    file_name = 'data_{}.json'.format(datetimenow)
-    file_from = Path(__file__).parents[0] / file_name
-    with open(file_from, 'w') as f:
-        json.dump(results, f)
-
-    #try:
-    creds = Credentials(token=st.secrets['token'],
-                        refresh_token = st.secrets['refresh_token'],
-                        token_uri = st.secrets['token_uri'],
-                        client_id=st.secrets['client_id'],
-                        client_secret=st.secrets['client_secret'],
-                        scopes=st.secrets['scopes'],
-                        expiry=datetime.strptime(st.secrets['expiry'], "%Y-%m-%dT%H:%M:%S"))
-
-
-    service = build('drive', 'v3', credentials=creds)
-    file_metadata = {'name': file_name,
-                     'parents': ['150dCgltvQa5gKum45F-fPlhKZ_tG0347']}
-    media = MediaFileUpload(file_from)
-    file = service.files().create(body=file_metadata,
-                                  media_body=media,
-                                  fields='id').execute()
 
 
 
