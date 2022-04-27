@@ -59,7 +59,7 @@ if st.button(label = 'Skip these words'):
 st.write("")
 
 ### Select words ###
-with st.form("my_form"):
+with st.form("my_form", clear_on_submit=True):
     selected_words = st.multiselect(label='Selected words:', options = words, default=None)
 
     clue = st.text_input(label='Enter your single word clue:', value="")
@@ -67,6 +67,7 @@ with st.form("my_form"):
     submitted = st.form_submit_button("Submit")
 
     if submitted:
+        st.write(selected_words, clue)
         datetimenow = datetime.now().strftime("%Y%m%d%H%M%S")
         results = {
             'words':';'.join(selected_words),
