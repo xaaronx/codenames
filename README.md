@@ -40,6 +40,8 @@ Solver builders have a few methods that power a **build** method that.
 - **Algorithms**:
   - Add word concatenation and checking (eg. 'water', 'gate' -> 'watergate')
   - Get thresholds to work smarter (they're random and dont generalise well across algorithms or solvers)
+  - Precompute BERT words and then compare to bert phrase that we compute on the fly
+  - Simple count vecs of wiki
 
 ---
 

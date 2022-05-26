@@ -17,7 +17,7 @@ class CodeNamesSolverAlgorithm:
         self.search_space_multiplier = search_space_multiplier
         self.logger = logging.getLogger(__name__)
 
-    def solve(self, words_to_hit: list, words_to_avoid: list = [], n: int = 10):
+    def solve(self, words_to_hit: list, words_to_avoid: list = None, n: int = 10) -> list:
         """Main algorithm solve method that algorithms should all utilise.
         Loops through word combinations (e.g. [cat, dog, wolf], [cat, dog], [cat, wolf] etc.) and computes similarity.
         Builds list of guesses and then finds top n.
@@ -27,13 +27,16 @@ class CodeNamesSolverAlgorithm:
         :param n: Number of solutions to return
         :return: Pruned list of guess objects
         """
+        if not words_to_hit:
+            words_to_avoid = []
+
         guesses = []
         words_combinations = self._get_word_combinations(words_to_hit)
         for words in words_combinations:
             try:
                 for solution in self._compute(words, n):
                     clue, similarity = solution
-                    guess = Guess(clue, similarity, words)
+                    guess = Guess(clue=clue, similarity=similarity, linked_words=words)
                     guesses.append(guess)
             except TypeError:
                 self.logger.error("Probably can't find source word in embeddings...")
@@ -53,7 +56,7 @@ class CodeNamesSolverAlgorithm:
     def _compute(self, *args, **kwargs):
         raise NotImplementedError
 
-    def _get_top_guesses(self, guesses: list, words_to_avoid: list, n: int):
+    def _get_top_guesses(self, guesses: list, words_to_avoid: list, n: int) -> list:
         """
 
         :param guesses: List of candidates (/guesses)

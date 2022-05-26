@@ -1,0 +1,22 @@
+models:
+  - name: AttractRepel
+    embedding_path: "../data/word_embeddings/attract_repel/embeddings.emb"
+    embeddings_parser: get_embeddings_glove_style
+  - name: FastText
+    embedding_path: "../data/word_embeddings/fasttext/embeddings-200k.txt"
+    embeddings_parser: get_embeddings_glove_style
+  - name: GloVe
+    embedding_path: "../data/word_embeddings/glove/glove.6B.300d.txt"
+    embeddings_parser: get_embeddings_glove_style
+  - name: Paragram
+    embedding_path: "../data/word_embeddings/paragram/paragram-ws-thin.txt"
+    embeddings_parser: get_embeddings_paragram_style
+  - name: WordNet
+    embedding_path: "../data/word_embeddings/wordnetemb/wordnet-randomwalks.emb"
+    embeddings_parser: get_embeddings_glove_style
+  - name: ConceptNet
+    embedding_path: "../data/word_embeddings/conceptnet/embeddings-thin.txt"
+    embeddings_parser: get_embeddings_glove_style
+n_thresholds: 8
+threshold_min: 0.0
+threshold_max: 0.5

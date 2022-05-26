@@ -11,7 +11,7 @@ from bot.utils import get_top_n_sorted
 
 class EmbeddingScorer:
     def __init__(self, guesses: list, embeddings: dict, words_to_avoid: list, n: int, threshold: float,
-                 distance_metric=Cosine, metric: str = "similarity_score",
+                 distance_metric=Cosine, metric: str = "similarity",
                  incorrect_words_threshold_multiplier: float = 1):
         self.guesses = guesses
         self.embeddings = embeddings
@@ -28,7 +28,7 @@ class EmbeddingScorer:
         :param guess: Single Guess object
         :return: Updated guess object
         """
-        guess.score = getattr(guess, self.metric) * guess.num_words_linked
+        guess.score = getattr(guess, self.metric) * np.sqrt(guess.num_words_linked)
         return guess
 
     @staticmethod
@@ -100,6 +100,8 @@ class EmbeddingScorer:
         :return: list of Guess objects that score highest.
         """
         self._preprocess()
-        ixs = self._top_n()
-        top_guesses = list(itemgetter(*ixs)(self.guesses))
-        return top_guesses
+        try:
+            ixs = self._top_n()
+            return list(itemgetter(*ixs)(self.guesses))
+        except:
+            return list()
